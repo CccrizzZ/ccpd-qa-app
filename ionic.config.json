@@ -1,0 +1,7 @@
+{
+  "name": "ccpd-qa-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
