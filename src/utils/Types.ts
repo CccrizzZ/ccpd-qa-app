@@ -1,2 +1,14 @@
-export type Condition = 'New' | 'Used' | 'Used Like New' | 'Damaged' | 'Sealed'
-export type Platform = 'Amazon' | 'Foreign Amazon' | 'eBay' | 'Official Website' | 'Other'
+export type Condition = 'New' | 'Sealed' | 'Used' | 'Used Like New' | 'Damaged' | 'As Is'
+export type Platform = 'Amazon' | 'eBay' | 'Official Website' | 'Other'
+
+export interface QARecord {
+    sku: number,
+    itemCondition: Condition,
+    comment: string,
+    link: string,
+    platform: Platform,
+    shelfLocation: string,
+    amount: number,
+    owner?: string
+    images?: string[]
+}

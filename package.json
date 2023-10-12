@@ -19,9 +19,12 @@
     "@capacitor/status-bar": "5.0.6",
     "@ionic/react": "^7.0.0",
     "@ionic/react-router": "^7.0.0",
+    "@tremor/react": "^3.9.2",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
+    "axios": "^1.5.1",
     "bootstrap": "^5.3.2",
+    "dotenv": "^16.3.1",
     "ionicons": "^7.0.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.0",
@@ -39,13 +42,17 @@
     "@types/react-dom": "^18.0.10",
     "@vitejs/plugin-legacy": "^4.0.2",
     "@vitejs/plugin-react": "^4.0.1",
-    "cypress": "^12.7.0",
+    "autoprefixer": "^10.4.16",
+    "cypress": "^13.3.1",
     "eslint": "^8.35.0",
     "eslint-plugin-react": "^7.32.2",
     "jsdom": "^22.1.0",
+    "postcss": "^8.4.31",
+    "react-error-overlay": "^6.0.9",
+    "tailwindcss": "^3.3.3",
     "typescript": "^5.1.6",
     "vite": "^4.3.9",
     "vitest": "^0.32.2"
   },
-  "description": "An Ionic project"
+  "description": "Ionic Q&A project"
 }
