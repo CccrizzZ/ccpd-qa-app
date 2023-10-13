@@ -107,6 +107,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
     }
 
     // send to mongo db
+
     axios({
       method: 'put',
       url: server + '/inventoryController/createInventory',
@@ -114,12 +115,13 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
       data: JSON.stringify(data)
     }).then((res) => {
       alert('Upload Success!!!')
+      // display pop up
     }).catch((err) => {
       throw err
     })
 
     // reset form
-    // resetForm()
+    resetForm()
   }
 
   return (

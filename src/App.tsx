@@ -34,47 +34,62 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import { useState } from 'react';
+import Login from './pages/Login';
 
 setupIonicReact();
 
 const App: React.FC = () => {
   const [userName, setUserName] = useState<string>('Michael')
+  const [isLogin, setIsLogin] = useState<boolean>(false)
+
+
+  const renderHome = () => {
+    if (isLogin) {
+      return (
+        <IonApp>
+          <IonReactRouter>
+            <IonTabs>
+              <IonRouterOutlet>
+                <Route exact path="/Home">
+                  <Home userName={userName} />
+                </Route>
+                <Route exact path="/MyInventory">
+                  <MyInventory />
+                </Route>
+                <Route path="/ImageUploader">
+                  <ImageUploader />
+                </Route>
+                <Route exact path="/">
+                  <Redirect to="/Home" />
+                </Route>
+              </IonRouterOutlet>
+              <IonTabBar slot="bottom">
+                <IonTabButton tab="Home" href="/Home">
+                  <IonIcon aria-hidden="true" icon={home} />
+                  <IonLabel>Home</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab="MyInventory" href="/MyInventory">
+                  <IonIcon aria-hidden="true" icon={apps} />
+                  <IonLabel>My Inventory</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab="ImageUploader" href="/ImageUploader">
+                  <IonIcon aria-hidden="true" icon={images} />
+                  <IonLabel>ImageUploader</IonLabel>
+                </IonTabButton>
+              </IonTabBar>
+            </IonTabs>
+          </IonReactRouter>
+        </IonApp>
+      )
+    } else {
+      return <Login />
+    }
+  }
 
   return (
-    <IonApp>
-      <IonReactRouter>
-        <IonTabs>
-          <IonRouterOutlet>
-            <Route exact path="/Home">
-              <Home userName={userName} />
-            </Route>
-            <Route exact path="/MyInventory">
-              <MyInventory />
-            </Route>
-            <Route path="/ImageUploader">
-              <ImageUploader />
-            </Route>
-            <Route exact path="/">
-              <Redirect to="/Home" />
-            </Route>
-          </IonRouterOutlet>
-          <IonTabBar slot="bottom">
-            <IonTabButton tab="Home" href="/Home">
-              <IonIcon aria-hidden="true" icon={home} />
-              <IonLabel>Home</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="MyInventory" href="/MyInventory">
-              <IonIcon aria-hidden="true" icon={apps} />
-              <IonLabel>My Inventory</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="ImageUploader" href="/ImageUploader">
-              <IonIcon aria-hidden="true" icon={images} />
-              <IonLabel>ImageUploader</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonReactRouter>
-    </IonApp>
+    <>
+      {renderHome()}
+    </>
   )
 }
 
