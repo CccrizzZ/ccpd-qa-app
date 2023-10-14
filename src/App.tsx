@@ -82,7 +82,7 @@ const App: React.FC = () => {
         </IonApp>
       )
     } else {
-      return <Login />
+      return <Login setLogin={() => setIsLogin(true)} />
     }
   }
 

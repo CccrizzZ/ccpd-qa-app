@@ -12,3 +12,8 @@ export interface QARecord {
     owner?: string
     images?: string[]
 }
+
+export interface User {
+    email: string,
+    password: string, // sha256 hash only
+}

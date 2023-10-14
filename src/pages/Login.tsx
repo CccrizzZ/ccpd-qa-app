@@ -1,18 +1,23 @@
 import React, { useState } from 'react'
+import axios from 'axios';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Fade, Form } from 'react-bootstrap';
 import { SHA256, enc } from 'crypto-js';
+import { User } from '../utils/Types'
 
-const encoder = new TextEncoder();
+const server = import.meta.env.VITE_APP_SERVER
 
+type LoginProp = {
+  setLogin: () => void
+}
 
-const Login: React.FC = () => {
-  const [userName, setUserName] = useState<string>('')
+const Login: React.FC<LoginProp> = (prop: LoginProp) => {
+  const [userEmail, setUserEmail] = useState<string>('')
   const [userPassword, setUserPassword] = useState<string>('')
   const [rememberMe, setRememberMe] = useState<boolean>(false)
 
-  const onUserNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUserName(event.target.value)
+  const onEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUserEmail(event.target.value)
   }
 
   const onPasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,22 +25,50 @@ const Login: React.FC = () => {
   }
 
   const onRememberMeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target.checked)
     setRememberMe(event.target.checked)
   }
 
-  const login = (): boolean => {
-    // encode password to a byte array
-    // const byteArray = sha256(encoder.encode(userPassword))
-    console.log(SHA256(userPassword).toString(enc.Base64))
+  const sanitize = (input: string) => {
 
+  }
 
-    // if encoded string matches result from db return true
-    if (true) {
-      return true
-    } else {
-      return false
+  const login = () => {
+    if (!userEmail || !userPassword) {
+      alert('Please Enter Both Username and Password')
+      return
     }
+
+    // encode password to sha256 Base 64 string
+    const passwordHash = SHA256(userPassword).toString(enc.Base64)
+
+    // username sanitization
+
+    // construct json to send
+    const userInfo: User = {
+      email: userEmail,
+      password: passwordHash,
+    }
+    console.log(JSON.stringify(userInfo))
+
+    axios({
+      method: 'post',
+      url: server + '/userController/validateUser',
+      responseType: 'text',
+      data: JSON.stringify(userInfo),
+    }).then((res) => {
+      if (res.data === true) {
+        alert('Login Success!!!')
+        // display pop up
+        prop.setLogin()
+      } else {
+        alert('Login Failed!!!')
+      }
+    }).catch((err) => {
+      alert('Server Error, Contact Admin!!!')
+      throw err
+    })
+
+
   }
 
   return (
@@ -46,22 +79,24 @@ const Login: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">
-        <Form>
-          <Form.Group className="mb-3" controlId="loginForm.unameInput1">
-            <Form.Label>Email address</Form.Label>
-            <Form.Control type="email" placeholder="Enter your email..." value={userName} onChange={onUserNameChange} />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="loginForm.pwdInput1">
-            <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Enter your password..." value={userPassword} onChange={onPasswordChange} />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="formBasicCheckbox">
-            <Form.Check type="checkbox" label="Remember me" aria-selected={rememberMe} onChange={onRememberMeChange} />
-          </Form.Group>
-          <div className="d-grid gap-2">
-            <Button variant="primary" size='lg' onClick={login}>Login</Button>
-          </div>
-        </Form>
+        <Fade in timeout={5000}>
+          <Form>
+            <Form.Group className="mb-3" controlId="loginForm.unameInput1">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control type="email" placeholder="Enter your email..." value={userEmail} onChange={onEmailChange} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="loginForm.pwdInput1">
+              <Form.Label>Password</Form.Label>
+              <Form.Control type="password" placeholder="Enter your password..." value={userPassword} onChange={onPasswordChange} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="rememberMeCheckbox">
+              <Form.Check type="checkbox" label="Remember me" aria-selected={rememberMe} onChange={onRememberMeChange} />
+            </Form.Group>
+            <div className="d-grid gap-2">
+              <Button variant="primary" size='lg' onClick={login}>Login</Button>
+            </div>
+          </Form>
+        </Fade>
       </IonContent>
     </IonPage>
   )
