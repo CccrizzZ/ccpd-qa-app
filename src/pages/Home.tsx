@@ -87,7 +87,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   }
 
   // submit button onclick
-  const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     // null checks
     if (!Sku) return alert('SKU Missing!')
     if (!itemCondition) return alert('Please Select Condition!')
@@ -108,7 +108,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
 
     // send to mongo db
 
-    axios({
+    await axios({
       method: 'put',
       url: server + '/inventoryController/createInventory',
       responseType: 'text',

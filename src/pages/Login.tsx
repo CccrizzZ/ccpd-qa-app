@@ -8,7 +8,8 @@ import { User } from '../utils/Types'
 const server = import.meta.env.VITE_APP_SERVER
 
 type LoginProp = {
-  setLogin: () => void
+  setLogin: () => void,
+  setToken: (token: string) => void
 }
 
 const Login: React.FC<LoginProp> = (prop: LoginProp) => {
@@ -32,7 +33,7 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
 
   }
 
-  const login = () => {
+  const login = async () => {
     if (!userEmail || !userPassword) {
       alert('Please Enter Both Username and Password')
       return
@@ -41,8 +42,6 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
     // encode password to sha256 Base 64 string
     const passwordHash = SHA256(userPassword).toString(enc.Base64)
 
-    // username sanitization
-
     // construct json to send
     const userInfo: User = {
       email: userEmail,
@@ -50,25 +49,23 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
     }
     console.log(JSON.stringify(userInfo))
 
-    axios({
+    await axios({
       method: 'post',
-      url: server + '/userController/validateUser',
+      url: server + '/userController/login',
       responseType: 'text',
       data: JSON.stringify(userInfo),
     }).then((res) => {
-      if (res.data === true) {
+      if (Boolean(res.data) === true) {
         alert('Login Success!!!')
-        // display pop up
         prop.setLogin()
+        prop.setToken(res.data)
       } else {
         alert('Login Failed!!!')
       }
     }).catch((err) => {
-      alert('Server Error, Contact Admin!!!')
+      alert(err + ' Server Error, Contact Admin!!!')
       throw err
     })
-
-
   }
 
   return (

@@ -9,8 +9,12 @@ type PieData = {
   amount: number
 }
 
+type MyInvProps = {
+  token: string
+}
+
 // Personal profile and dashboard
-const MyInventory: React.FC = () => {
+const MyInventory: React.FC<MyInvProps> = ({ token }) => {
   const [inventoryArr, setInventoryArr] = useState<Array<string>>()
   const [pieChartData] = useState<PieData[]>([
     {
@@ -47,6 +51,7 @@ const MyInventory: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">
+        <h1>{token ?? "Token"}</h1>
         <Card decoration="top" decorationColor="orange">
           <DonutChart
             className="mt-4"

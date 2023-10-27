@@ -41,7 +41,7 @@ setupIonicReact();
 const App: React.FC = () => {
   const [userName, setUserName] = useState<string>('Michael')
   const [isLogin, setIsLogin] = useState<boolean>(false)
-
+  const [userToken, setUserToken] = useState<string>('')
 
   const renderHome = () => {
     if (isLogin) {
@@ -54,7 +54,7 @@ const App: React.FC = () => {
                   <Home userName={userName} />
                 </Route>
                 <Route exact path="/MyInventory">
-                  <MyInventory />
+                  <MyInventory token={userToken} />
                 </Route>
                 <Route path="/ImageUploader">
                   <ImageUploader />
@@ -82,7 +82,10 @@ const App: React.FC = () => {
         </IonApp>
       )
     } else {
-      return <Login setLogin={() => setIsLogin(true)} />
+      return <Login
+        setLogin={() => setIsLogin(true)}
+        setToken={(token: string) => setUserToken(token)}
+      />
     }
   }
 
