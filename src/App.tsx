@@ -33,8 +33,9 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Login from './pages/Login';
+import LoadingSpiner from './utils/LoadingSpiner';
 
 setupIonicReact();
 
@@ -42,6 +43,13 @@ const App: React.FC = () => {
   const [userName, setUserName] = useState<string>('Michael')
   const [isLogin, setIsLogin] = useState<boolean>(false)
   const [userToken, setUserToken] = useState<string>('')
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  useEffect(() => {
+    // check http-only cookie for jwt 
+
+
+  }, [])
 
   const renderHome = () => {
     if (isLogin) {
@@ -54,7 +62,7 @@ const App: React.FC = () => {
                   <Home userName={userName} />
                 </Route>
                 <Route exact path="/MyInventory">
-                  <MyInventory token={userToken} />
+                  <MyInventory token={userToken} setIsLogin={setIsLogin} />
                 </Route>
                 <Route path="/ImageUploader">
                   <ImageUploader />
@@ -82,15 +90,21 @@ const App: React.FC = () => {
         </IonApp>
       )
     } else {
-      return <Login
-        setLogin={() => setIsLogin(true)}
-        setToken={(token: string) => setUserToken(token)}
-      />
+      return (
+        <>
+          <Login
+            setLogin={() => setIsLogin(true)}
+            setToken={(token: string) => setUserToken(token)}
+            setLoading={setIsLoading}
+          />
+        </>
+      )
     }
   }
 
   return (
     <>
+      <LoadingSpiner show={isLoading} />
       {renderHome()}
     </>
   )

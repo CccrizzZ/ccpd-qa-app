@@ -9,13 +9,15 @@ const server = import.meta.env.VITE_APP_SERVER
 
 type LoginProp = {
   setLogin: () => void,
-  setToken: (token: string) => void
+  setToken: (token: string) => void,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const Login: React.FC<LoginProp> = (prop: LoginProp) => {
   const [userEmail, setUserEmail] = useState<string>('')
   const [userPassword, setUserPassword] = useState<string>('')
   const [rememberMe, setRememberMe] = useState<boolean>(false)
+  // const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const onEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUserEmail(event.target.value)
@@ -34,10 +36,9 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
   }
 
   const login = async () => {
-    if (!userEmail || !userPassword) {
-      alert('Please Enter Both Username and Password')
-      return
-    }
+    // maybe put a len check here for less request
+    // null check
+    if (!userEmail || !userPassword) return alert('Please Enter Both Username and Password')
 
     // encode password to sha256 Base 64 string
     const passwordHash = SHA256(userPassword).toString(enc.Base64)
@@ -47,24 +48,27 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       email: userEmail,
       password: passwordHash,
     }
+
     console.log(JSON.stringify(userInfo))
 
+    // send request
+    prop.setLoading(true)
+    const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+    await sleep(1000)
     await axios({
       method: 'post',
       url: server + '/userController/login',
       responseType: 'text',
       data: JSON.stringify(userInfo),
+      withCredentials: true
     }).then((res) => {
-      if (Boolean(res.data) === true) {
-        alert('Login Success!!!')
-        prop.setLogin()
-        prop.setToken(res.data)
-      } else {
-        alert('Login Failed!!!')
-      }
+      console.log(res)
+      prop.setLogin()
+      prop.setToken(res.data)
+      prop.setLoading(false)
     }).catch((err) => {
-      alert(err + ' Server Error, Contact Admin!!!')
-      throw err
+      alert(' Login Error!!!')
+      prop.setLoading(false)
     })
   }
 

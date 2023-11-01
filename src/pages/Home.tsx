@@ -24,10 +24,10 @@ type HomeProp = {
   userName: string
 }
 
-const Home: React.FC<HomeProp> = (prop: HomeProp) => {
+const Home: React.FC<HomeProp> = ({ userName }) => {
   const [Sku, setSku] = useState<number>(defaultInfo.sku)
   const [itemCondition, setItemCondition] = useState<Condition>(defaultInfo.itemCondition as Condition)
-  const [comment, setComment] = useState<string>(defaultInfo.comment as Condition)
+  const [comment, setComment] = useState<string>(defaultInfo.comment)
   const [link, setLink] = useState<string>(defaultInfo.link)
   const [platform, setPlatform] = useState<Platform>(defaultInfo.platform as Platform)
   const [shelfLocation, setShelfLocation] = useState<string>(defaultInfo.shelfLocation)
@@ -68,9 +68,9 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
 
   // speed dial comment
   const appendToComment = (info: string) => {
-    if (comment?.includes(info)) return
+    if (comment.includes(info)) return
     const comma = comment ? ', ' : ''
-    setComment(comment + comma + info.toUpperCase())
+    return () => setComment(comment + comma + info.toUpperCase())
   }
 
   // clear all info, reset the form
@@ -103,7 +103,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
       platform: platform,
       shelfLocation: shelfLocation,
       amount: amount,
-      owner: prop.userName
+      owner: userName
     }
 
     // send to mongo db
@@ -156,10 +156,10 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
             <Form.Control type="text" as="textarea" style={{ resize: 'none' }} value={comment} onChange={handleCommentChange} />
           </Form.Group>
           <ButtonGroup size='sm' className="mb-2">
-            <Button onClick={() => appendToComment('All Parts In')} variant="success">All Parts In</Button>
-            <Button onClick={() => appendToComment('Missing Accessory')} variant="success">Missing Accessory</Button>
-            <Button onClick={() => appendToComment('Missing Main Parts')} variant="success">Missing Main Parts</Button>
-            <Button onClick={() => appendToComment('Black Color')} variant="success">Black Color</Button>
+            <Button onClick={appendToComment('All Parts In')} variant="success">All Parts In</Button>
+            <Button onClick={appendToComment('Missing Accessory')} variant="success">Missing Accessory</Button>
+            <Button onClick={appendToComment('Missing Main Parts')} variant="success">Missing Main Parts</Button>
+            <Button onClick={appendToComment('Black Color')} variant="success">Black Color</Button>
           </ButtonGroup>
           <Form.Group id='formgroup'>
             <Form.Label>Link</Form.Label>
