@@ -17,3 +17,9 @@ export interface User {
     email: string,
     password: string, // sha256 hash only
 }
+
+// for storing user info in App.tsx
+export interface UserInfo {
+    id: string,
+    name: string,
+}

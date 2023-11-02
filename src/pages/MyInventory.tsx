@@ -1,5 +1,5 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import './MyInventory.css';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { useState } from 'react';
 import { DonutChart, Legend, Card } from "@tremor/react";
 import { Button } from 'react-bootstrap';
@@ -11,16 +11,16 @@ type PieData = {
   amount: number
 }
 
-
 const server = import.meta.env.VITE_APP_SERVER
 
 type MyInvProps = {
-  token: string
-  setIsLogin: (login: boolean) => void
+  isLogin: boolean,
+  setIsLogin: (login: boolean) => void,
+  refresh: () => void
 }
 
 // Personal profile and dashboard
-const MyInventory: React.FC<MyInvProps> = ({ token, setIsLogin }) => {
+const MyInventory: React.FC<MyInvProps> = ({ isLogin, setIsLogin, refresh }) => {
   const [inventoryArr, setInventoryArr] = useState<Array<string>>()
   const [pieChartData] = useState<PieData[]>([
     {
@@ -57,39 +57,39 @@ const MyInventory: React.FC<MyInvProps> = ({ token, setIsLogin }) => {
       withCredentials: true
     }).then((res) => {
       const data = JSON.parse(res.data)
-
       alert('Logout Success!!! ' + data)
+      setIsLogin(false)
     }).catch((err) => {
       console.log(err.data)
+      setIsLogin(false)
       throw err
     })
-
-    setIsLogin(false)
-
   }
-
 
   const renderUser = () => {
     return (
       <>
         <h2>User Name</h2>
-        <Card decoration="top" decorationColor="orange">
+        <Card decoration="top" decorationColor="amber" style={{ padding: 0 }}>
           <DonutChart
             className="mt-4"
             data={pieChartData}
             category="amount"
             index="name"
             valueFormatter={valueFormatter}
-            colors={["slate", "violet", "indigo", "rose", "cyan", "amber"]}
+            colors={["green", "violet", "sky", "rose", "slate", "orange"]}
           />
           <Legend
-            className="mt-4"
+            className="mt-3"
             categories={["New", "Used", "Used Like New", "Sealed", "Damaged", "As Is"]}
-            colors={["slate", "violet", "indigo", "rose", "cyan", "amber"]}
+            colors={["green", "violet", "sky", "rose", "slate", "orange"]}
           />
         </Card>
 
-        <Button onClick={logout}>Logout</Button>
+
+        <div className="d-grid gap-2">
+          <Button variant="danger" onClick={logout}>Logout</Button>
+        </div>
       </>
     )
   }
@@ -102,7 +102,7 @@ const MyInventory: React.FC<MyInvProps> = ({ token, setIsLogin }) => {
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">
-        {token ? renderUser() : undefined}
+        {isLogin ? renderUser() : undefined}
       </IonContent>
     </IonPage>
   );

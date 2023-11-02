@@ -36,20 +36,42 @@ import './theme/variables.css';
 import { useEffect, useState } from 'react';
 import Login from './pages/Login';
 import LoadingSpiner from './utils/LoadingSpiner';
-
+import { QARecord, UserInfo } from './utils/Types'
+import axios from 'axios';
 setupIonicReact();
 
+const server = import.meta.env.VITE_APP_SERVER
 const App: React.FC = () => {
-  const [userName, setUserName] = useState<string>('Michael')
+  // user information 
+  const [userInfo, setUserInfo] = useState<UserInfo>({
+    id: '',
+    name: '',
+  })
+  // array of user owned inventory
+  const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([])
+  // login flag
   const [isLogin, setIsLogin] = useState<boolean>(false)
-  const [userToken, setUserToken] = useState<string>('')
+  // show the spinner component
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  useEffect(() => {
-    // check http-only cookie for jwt 
+  const setUserId = (id: string) => setUserInfo({ ...userInfo, id: id })
+  const setUserName = (name: string) => setUserInfo({ ...userInfo, name: name })
+  const refreshUserInventoryArr = async () => {
+    // send to mongo db
+    await axios({
+      method: 'get',
+      url: server + '/inventoryController/get',
+      responseType: 'text',
+      withCredentials: true
+    }).then((res) => {
+      alert('Upload Success')
+      // display pop up
+    }).catch((err) => {
+      alert('Upload Failed')
+      throw err
+    })
+  }
 
-
-  }, [])
 
   const renderHome = () => {
     if (isLogin) {
@@ -59,10 +81,10 @@ const App: React.FC = () => {
             <IonTabs>
               <IonRouterOutlet>
                 <Route exact path="/Home">
-                  <Home userName={userName} />
+                  <Home userName={userInfo.name} setUserId={setUserId} />
                 </Route>
                 <Route exact path="/MyInventory">
-                  <MyInventory token={userToken} setIsLogin={setIsLogin} />
+                  <MyInventory isLogin={isLogin} setIsLogin={setIsLogin} refresh={refreshUserInventoryArr} />
                 </Route>
                 <Route path="/ImageUploader">
                   <ImageUploader />
@@ -94,8 +116,8 @@ const App: React.FC = () => {
         <>
           <Login
             setLogin={() => setIsLogin(true)}
-            setToken={(token: string) => setUserToken(token)}
             setLoading={setIsLoading}
+            setUserId={setUserId}
           />
         </>
       )

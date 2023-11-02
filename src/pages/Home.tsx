@@ -21,10 +21,11 @@ const defaultInfo = {
   amount: 1
 }
 type HomeProp = {
-  userName: string
+  userName: string,
+  setUserId: (id: string) => void
 }
 
-const Home: React.FC<HomeProp> = ({ userName }) => {
+const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   const [Sku, setSku] = useState<number>(defaultInfo.sku)
   const [itemCondition, setItemCondition] = useState<Condition>(defaultInfo.itemCondition as Condition)
   const [comment, setComment] = useState<string>(defaultInfo.comment)
@@ -103,20 +104,21 @@ const Home: React.FC<HomeProp> = ({ userName }) => {
       platform: platform,
       shelfLocation: shelfLocation,
       amount: amount,
-      owner: userName
+      owner: prop.userName
     }
 
     // send to mongo db
-
     await axios({
       method: 'put',
       url: server + '/inventoryController/createInventory',
       responseType: 'text',
-      data: JSON.stringify(data)
+      data: JSON.stringify(data),
+      withCredentials: true
     }).then((res) => {
-      alert('Upload Success!!!')
+      alert('Upload Success')
       // display pop up
     }).catch((err) => {
+      alert('Upload Failed')
       throw err
     })
 
@@ -150,7 +152,6 @@ const Home: React.FC<HomeProp> = ({ userName }) => {
             </Form.Select>
           </Form.Group>
           <hr color='white' />
-
           <Form.Group id='formgroup'>
             <Form.Label>Comment</Form.Label>
             <Form.Control type="text" as="textarea" style={{ resize: 'none' }} value={comment} onChange={handleCommentChange} />
@@ -182,7 +183,6 @@ const Home: React.FC<HomeProp> = ({ userName }) => {
           <Form.Group id='formgroup'>
             <Form.Label>Amount</Form.Label>
             <NumberInput value={amount} placeholder="Amount..." onChange={handleAmountChange} />
-            {/* <Form.Control type="number" value={amount} onChange={handleAmountChange} /> */}
           </Form.Group>
           <hr color='white' />
           <div className="d-grid gap-2">
