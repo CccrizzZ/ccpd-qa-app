@@ -42,38 +42,38 @@ setupIonicReact();
 
 const server = import.meta.env.VITE_APP_SERVER
 const App: React.FC = () => {
-  // user information 
+  // current user info
   const [userInfo, setUserInfo] = useState<UserInfo>({
     id: '',
     name: '',
   })
-  // array of user owned inventory
-  const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([])
-  // login flag
-  const [isLogin, setIsLogin] = useState<boolean>(false)
-  // show the spinner component
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([]) // array of user owned inventory
+  const [isLogin, setIsLogin] = useState<boolean>(false) // login flag
+  const [isLoading, setIsLoading] = useState<boolean>(false) // show the spinner component
 
-  const setUserId = (id: string) => setUserInfo({ ...userInfo, id: id })
-  const setUserName = (name: string) => setUserInfo({ ...userInfo, name: name })
+  // setter methods
+  const setUserInformation = (info: UserInfo) => setUserInfo(info)
   const refreshUserInventoryArr = async () => {
     // send to mongo db
     await axios({
-      method: 'get',
-      url: server + '/inventoryController/get',
+      method: 'post',
+      url: server + '/inventoryController/getInventoryByOwnerId',
+      withCredentials: true,
       responseType: 'text',
-      withCredentials: true
-    }).then((res) => {
-      alert('Upload Success')
-      // display pop up
+      data: JSON.stringify({ 'id': String(userInfo.id) })
+    }).then((res): void => {
+      // set user inventory array
+      console.log(JSON.parse(res.data));
+
+      setUserInventoryArr(JSON.parse(res.data))
+
     }).catch((err) => {
-      alert('Upload Failed')
+      alert('Cannot Load User Inventory')
       throw err
     })
   }
 
-
-  const renderHome = () => {
+  const renderApp = () => {
     if (isLogin) {
       return (
         <IonApp>
@@ -81,10 +81,17 @@ const App: React.FC = () => {
             <IonTabs>
               <IonRouterOutlet>
                 <Route exact path="/Home">
-                  <Home userName={userInfo.name} setUserId={setUserId} />
+                  <Home userInfo={userInfo} />
                 </Route>
                 <Route exact path="/MyInventory">
-                  <MyInventory isLogin={isLogin} setIsLogin={setIsLogin} refresh={refreshUserInventoryArr} />
+                  <MyInventory
+                    userInfo={userInfo}
+                    isLogin={isLogin}
+                    setIsLogin={setIsLogin}
+                    refresh={refreshUserInventoryArr}
+                    userInventoryArr={userInventoryArr}
+                    setUserInventoryArr={setUserInventoryArr}
+                  />
                 </Route>
                 <Route path="/ImageUploader">
                   <ImageUploader />
@@ -117,7 +124,7 @@ const App: React.FC = () => {
           <Login
             setLogin={() => setIsLogin(true)}
             setLoading={setIsLoading}
-            setUserId={setUserId}
+            setUserInfo={setUserInformation}
           />
         </>
       )
@@ -127,7 +134,7 @@ const App: React.FC = () => {
   return (
     <>
       <LoadingSpiner show={isLoading} />
-      {renderHome()}
+      {renderApp()}
     </>
   )
 }

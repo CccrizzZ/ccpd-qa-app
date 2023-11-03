@@ -3,7 +3,7 @@ import axios from 'axios';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { Button, Fade, Form } from 'react-bootstrap';
 import { SHA256, enc } from 'crypto-js';
-import { User } from '../utils/Types';
+import { User, UserInfo } from '../utils/Types';
 import { sleep } from '../utils/utils';
 
 const server = import.meta.env.VITE_APP_SERVER
@@ -11,7 +11,7 @@ const server = import.meta.env.VITE_APP_SERVER
 type LoginProp = {
   setLogin: React.Dispatch<React.SetStateAction<boolean>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>
-  setUserId: (id: string) => void
+  setUserInfo: (id: UserInfo) => void
 }
 
 const Login: React.FC<LoginProp> = (prop: LoginProp) => {
@@ -30,8 +30,10 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       data: '',
       withCredentials: true
     }).then((res) => {
-      if (res.status === 200) prop.setLogin(true)
-      prop.setUserId(res.data)
+      if (res.status === 200) {
+        prop.setLogin(true)
+        prop.setUserInfo(JSON.parse(res.data))
+      }
     }).catch((err) => {
       console.log('please login')
     })
@@ -85,8 +87,8 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       data: JSON.stringify(userInfo),
       withCredentials: true
     }).then((res) => {
-      console.log(res)
       prop.setLogin(true)
+      prop.setUserInfo(JSON.parse(res.data))
     }).catch((err) => {
       alert(' Login Error!!!')
     })

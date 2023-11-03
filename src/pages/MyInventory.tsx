@@ -1,26 +1,35 @@
 import './MyInventory.css';
+import axios from 'axios';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { useState } from 'react';
 import { DonutChart, Legend, Card } from "@tremor/react";
 import { Button } from 'react-bootstrap';
-import axios from 'axios';
+import { QARecord, UserInfo } from '../utils/Types';
+import InventoryTable from '../components/InventoryTable'
+import { RiRefreshLine } from "react-icons/ri";
 
+// chart stuff
 const valueFormatter = (number: number) => `${new Intl.NumberFormat("us").format(number).toString()} Items`;
 type PieData = {
   name: string,
   amount: number
 }
 
+// server addy
 const server = import.meta.env.VITE_APP_SERVER
 
+// props from App.tsx
 type MyInvProps = {
+  userInfo: UserInfo,
   isLogin: boolean,
   setIsLogin: (login: boolean) => void,
-  refresh: () => void
+  refresh: () => void,
+  userInventoryArr: QARecord[],
+  setUserInventoryArr: React.Dispatch<React.SetStateAction<QARecord[]>>
 }
 
 // Personal profile and dashboard
-const MyInventory: React.FC<MyInvProps> = ({ isLogin, setIsLogin, refresh }) => {
+const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
   const [inventoryArr, setInventoryArr] = useState<Array<string>>()
   const [pieChartData] = useState<PieData[]>([
     {
@@ -56,12 +65,10 @@ const MyInventory: React.FC<MyInvProps> = ({ isLogin, setIsLogin, refresh }) => 
       responseType: 'text',
       withCredentials: true
     }).then((res) => {
-      const data = JSON.parse(res.data)
-      alert('Logout Success!!! ' + data)
-      setIsLogin(false)
+      alert('Logout Success!!!')
+      prop.setIsLogin(false)
     }).catch((err) => {
-      console.log(err.data)
-      setIsLogin(false)
+      prop.setIsLogin(false)
       throw err
     })
   }
@@ -69,7 +76,10 @@ const MyInventory: React.FC<MyInvProps> = ({ isLogin, setIsLogin, refresh }) => 
   const renderUser = () => {
     return (
       <>
-        <h2>User Name</h2>
+        <h2>{prop.userInfo.name}</h2>
+        <div className="d-grid gap-2 mb-4">
+          <Button variant="secondary" onClick={logout}>Logout</Button>
+        </div>
         <Card decoration="top" decorationColor="amber" style={{ padding: 0 }}>
           <DonutChart
             className="mt-4"
@@ -85,11 +95,9 @@ const MyInventory: React.FC<MyInvProps> = ({ isLogin, setIsLogin, refresh }) => 
             colors={["green", "violet", "sky", "rose", "slate", "orange"]}
           />
         </Card>
+        <Button className='gap-2 mb-4' variant="primary" onClick={prop.refresh}><RiRefreshLine /></Button>
 
-
-        <div className="d-grid gap-2">
-          <Button variant="danger" onClick={logout}>Logout</Button>
-        </div>
+        <InventoryTable InventoryArr={prop.userInventoryArr} />
       </>
     )
   }
@@ -97,12 +105,12 @@ const MyInventory: React.FC<MyInvProps> = ({ isLogin, setIsLogin, refresh }) => 
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar style={{ display: 'flex' }}>
           <IonTitle>My Inventory</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">
-        {isLogin ? renderUser() : undefined}
+        {prop.isLogin ? renderUser() : undefined}
       </IonContent>
     </IonPage>
   );

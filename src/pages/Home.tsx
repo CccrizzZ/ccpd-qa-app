@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { Condition, Platform, QARecord } from '../utils/Types';
+import { Condition, Platform, QARecord, UserInfo } from '../utils/Types';
 import { NumberInput } from "@tremor/react";
 import axios from 'axios';
 import {
@@ -21,8 +21,7 @@ const defaultInfo = {
   amount: 1
 }
 type HomeProp = {
-  userName: string,
-  setUserId: (id: string) => void
+  userInfo: UserInfo,
 }
 
 const Home: React.FC<HomeProp> = (prop: HomeProp) => {
@@ -98,13 +97,14 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
     // construct data
     const data: QARecord = {
       sku: Sku,
+      time: new Date().toLocaleTimeString(),
       itemCondition: itemCondition,
       comment: comment ?? '',
       link: link,
       platform: platform,
       shelfLocation: shelfLocation,
       amount: amount,
-      owner: prop.userName
+      owner: prop.userInfo.name
     }
 
     // send to mongo db
