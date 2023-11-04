@@ -4,14 +4,12 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/rea
 import { Button, Fade, Form } from 'react-bootstrap';
 import { SHA256, enc } from 'crypto-js';
 import { User, UserInfo } from '../utils/Types';
-import { sleep } from '../utils/utils';
-
-const server = import.meta.env.VITE_APP_SERVER
+import { sleep, server } from '../utils/utils';
 
 type LoginProp = {
   setLogin: React.Dispatch<React.SetStateAction<boolean>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>
-  setUserInfo: (id: UserInfo) => void
+  setUserInfo: React.Dispatch<React.SetStateAction<UserInfo>>
 }
 
 const Login: React.FC<LoginProp> = (prop: LoginProp) => {

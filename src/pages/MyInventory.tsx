@@ -3,10 +3,15 @@ import axios from 'axios';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { useState } from 'react';
 import { DonutChart, Legend, Card } from "@tremor/react";
-import { Button } from 'react-bootstrap';
+import {
+  Button,
+  Row,
+  Col
+} from 'react-bootstrap';
 import { QARecord, UserInfo } from '../utils/Types';
 import InventoryTable from '../components/InventoryTable'
-import { RiRefreshLine } from "react-icons/ri";
+import { RiRefreshLine, RiLogoutBoxRLine } from "react-icons/ri";
+import { server } from '../utils/utils'
 
 // chart stuff
 const valueFormatter = (number: number) => `${new Intl.NumberFormat("us").format(number).toString()} Items`;
@@ -14,9 +19,6 @@ type PieData = {
   name: string,
   amount: number
 }
-
-// server addy
-const server = import.meta.env.VITE_APP_SERVER
 
 // props from App.tsx
 type MyInvProps = {
@@ -76,10 +78,12 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
   const renderUser = () => {
     return (
       <>
-        <h2>{prop.userInfo.name}</h2>
-        <div className="d-grid gap-2 mb-4">
-          <Button variant="secondary" onClick={logout}>Logout</Button>
-        </div>
+        <Row>
+          <Col><h2>{prop.userInfo.name}</h2></Col>
+          <Col style={{ textAlign: 'right' }}>
+            <Button className='mt-3' variant="dark" onClick={logout} style={{ margin: 'auto' }}><RiLogoutBoxRLine /></Button>
+          </Col>
+        </Row>
         <Card decoration="top" decorationColor="amber" style={{ padding: 0 }}>
           <DonutChart
             className="mt-4"
@@ -96,7 +100,6 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
           />
         </Card>
         <Button className='gap-2 mb-4' variant="primary" onClick={prop.refresh}><RiRefreshLine /></Button>
-
         <InventoryTable InventoryArr={prop.userInventoryArr} />
       </>
     )

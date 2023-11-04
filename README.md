@@ -23,9 +23,10 @@ Ionic QA Personal Client Application.
 
 ### Personal Dashboard
 - Overview of past inventory.
+- Sorting and filtering function for inventory table.
 - Update or delete incorrect inventory info.
 
 ### SKU Lookup
 - Query information for single inventory item by sku.
-
+- Include image thumbnail in result
 ---

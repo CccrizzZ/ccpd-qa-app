@@ -10,7 +10,7 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { images, apps, home } from 'ionicons/icons';
+import { images, apps, home, searchCircle } from 'ionicons/icons';
 import Home from './pages/Home';
 import MyInventory from './pages/MyInventory';
 import ImageUploader from './pages/ImageUploader';
@@ -33,11 +33,13 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
+import './theme/font.css';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Login from './pages/Login';
 import LoadingSpiner from './utils/LoadingSpiner';
-import { QARecord, UserInfo } from './utils/Types'
-import axios from 'axios';
+import { QARecord, UserInfo } from './utils/Types';
+import SkuQuery from './pages/SkuQuery';
 setupIonicReact();
 
 const server = import.meta.env.VITE_APP_SERVER
@@ -45,14 +47,13 @@ const App: React.FC = () => {
   // current user info
   const [userInfo, setUserInfo] = useState<UserInfo>({
     id: '',
-    name: '',
+    name: ''
   })
   const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([]) // array of user owned inventory
   const [isLogin, setIsLogin] = useState<boolean>(false) // login flag
   const [isLoading, setIsLoading] = useState<boolean>(false) // show the spinner component
 
   // setter methods
-  const setUserInformation = (info: UserInfo) => setUserInfo(info)
   const refreshUserInventoryArr = async () => {
     // send to mongo db
     await axios({
@@ -63,10 +64,9 @@ const App: React.FC = () => {
       data: JSON.stringify({ 'id': String(userInfo.id) })
     }).then((res): void => {
       // set user inventory array
-      console.log(JSON.parse(res.data));
-
-      setUserInventoryArr(JSON.parse(res.data))
-
+      const invArr = JSON.parse(res.data)
+      if (invArr.length < 1) return alert('No Inventory Found')
+      setUserInventoryArr(invArr)
     }).catch((err) => {
       alert('Cannot Load User Inventory')
       throw err
@@ -93,8 +93,11 @@ const App: React.FC = () => {
                     setUserInventoryArr={setUserInventoryArr}
                   />
                 </Route>
-                <Route path="/ImageUploader">
+                <Route exact path="/ImageUploader">
                   <ImageUploader />
+                </Route>
+                <Route exact path="/SkuQuery">
+                  <SkuQuery setLoading={setIsLogin} />
                 </Route>
                 <Route exact path="/">
                   <Redirect to="/Home" />
@@ -113,6 +116,10 @@ const App: React.FC = () => {
                   <IonIcon aria-hidden="true" icon={images} />
                   <IonLabel>ImageUploader</IonLabel>
                 </IonTabButton>
+                <IonTabButton tab="SkuQuery" href="/SkuQuery">
+                  <IonIcon aria-hidden="true" icon={searchCircle} />
+                  <IonLabel>SkuQuery</IonLabel>
+                </IonTabButton>
               </IonTabBar>
             </IonTabs>
           </IonReactRouter>
@@ -124,7 +131,7 @@ const App: React.FC = () => {
           <Login
             setLogin={() => setIsLogin(true)}
             setLoading={setIsLoading}
-            setUserInfo={setUserInformation}
+            setUserInfo={setUserInfo}
           />
         </>
       )

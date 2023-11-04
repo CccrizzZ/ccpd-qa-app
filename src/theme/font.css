@@ -1,0 +1,9 @@
+body,
+html {
+    font-family: 'SFPRO', sans-serif;
+}
+
+@font-face {
+    font-family: 'SFPRO';
+    src: local('SFPRO'), url(../assets/SF-Pro.ttf) format('truetype');
+}
