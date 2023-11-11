@@ -1,11 +1,12 @@
 import { ChangeEventHandler, useState } from 'react'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
 import { Button, Form, ListGroup } from 'react-bootstrap'
+import LoadingSpinner from '../utils/LoadingSpiner'
 import './ImageUploader.css'
 
 const ImageUploader: React.FC = () => {
   const [sku, setSku] = useState<number>()
-  const [selectedFiles, setSelectedFiles] = useState<Array<File>>([])
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
 
   const handleSkuChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,21 +22,23 @@ const ImageUploader: React.FC = () => {
 
   // send async request to upload
   const handleUpload = async () => {
-    if (!sku) alert('Please Enter SKU')
-    if (selectedFiles.length < 1) alert('Please Select Photos')
+    if (!sku) return alert('Please Enter SKU')
+    if (selectedFiles.length < 1) return alert('Please Select Photos')
+    setUploading(true)
+
+    // upload files
+    for (const file of selectedFiles) {
+      console.log('uploading: ' + file.name)
+    }
 
     // clean up previous selection
     setSelectedFiles([])
-
-    // push files into selection array
-    for (const file of selectedFiles) {
-      console.log(file.name)
-    }
-
+    setUploading(false)
   }
 
   return (
     <IonPage>
+      <LoadingSpinner show={uploading} />
       <IonHeader>
         <IonToolbar>
           <IonTitle>Bulk Upload Photos</IonTitle>

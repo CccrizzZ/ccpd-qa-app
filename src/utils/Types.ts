@@ -35,3 +35,8 @@ export interface UserInfo {
     id: string,
     name: string,
 }
+
+export type PieData = {
+    name: string,
+    amount: number
+}

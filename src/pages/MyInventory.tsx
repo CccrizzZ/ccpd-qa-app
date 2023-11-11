@@ -1,24 +1,20 @@
 import './MyInventory.css';
 import axios from 'axios';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DonutChart, Legend, Card } from "@tremor/react";
 import {
   Button,
   Row,
   Col
 } from 'react-bootstrap';
-import { QARecord, UserInfo } from '../utils/Types';
+import { QARecord, UserInfo, PieData } from '../utils/Types';
 import InventoryTable from '../components/InventoryTable'
 import { RiRefreshLine, RiLogoutBoxRLine } from "react-icons/ri";
-import { server } from '../utils/utils'
+import { server, getChartData } from '../utils/utils'
 
 // chart stuff
 const valueFormatter = (number: number) => `${new Intl.NumberFormat("us").format(number).toString()} Items`;
-type PieData = {
-  name: string,
-  amount: number
-}
 
 // props from App.tsx
 type MyInvProps = {
@@ -27,39 +23,17 @@ type MyInvProps = {
   setIsLogin: (login: boolean) => void,
   refresh: () => void,
   userInventoryArr: QARecord[],
-  setUserInventoryArr: React.Dispatch<React.SetStateAction<QARecord[]>>
+  pieChartData: PieData[]
 }
 
 // Personal profile and dashboard
 const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
-  const [inventoryArr, setInventoryArr] = useState<Array<string>>()
-  const [pieChartData] = useState<PieData[]>([
-    {
-      name: "New",
-      amount: 57,
-    },
-    {
-      name: "Used",
-      amount: 5,
-    },
-    {
-      name: "Used Like New",
-      amount: 4,
-    },
-    {
-      name: "Sealed",
-      amount: 15,
-    },
-    {
-      name: "Damaged",
-      amount: 1,
-    },
-    {
-      name: "As Is",
-      amount: 4,
-    },
-  ])
+  // refresh on construct
+  useEffect(() => {
+    prop.refresh()
+  }, [])
 
+  // logout current user delete http-only cookie
   const logout = async () => {
     await axios({
       method: 'post',
@@ -77,17 +51,17 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
 
   const renderUser = () => {
     return (
-      <>
+      <div>
         <Row>
           <Col><h2>{prop.userInfo.name}</h2></Col>
           <Col style={{ textAlign: 'right' }}>
             <Button className='mt-3' variant="dark" onClick={logout} style={{ margin: 'auto' }}><RiLogoutBoxRLine /></Button>
           </Col>
         </Row>
-        <Card decoration="top" decorationColor="amber" style={{ padding: 0 }}>
+        <Card decoration="top" decorationColor="amber" style={{ padding: 0, minHeight: '250px' }}>
           <DonutChart
             className="mt-4"
-            data={pieChartData}
+            data={prop.pieChartData}
             category="amount"
             index="name"
             valueFormatter={valueFormatter}
@@ -100,8 +74,8 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
           />
         </Card>
         <Button className='gap-2 mb-4' variant="primary" onClick={prop.refresh}><RiRefreshLine /></Button>
-        <InventoryTable InventoryArr={prop.userInventoryArr} />
-      </>
+        <InventoryTable inventoryArr={prop.userInventoryArr} />
+      </div>
     )
   }
 

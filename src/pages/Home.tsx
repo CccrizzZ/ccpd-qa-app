@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { Condition, Platform, QARecord, UserInfo } from '../utils/Types';
+import { Clipboard } from '@capacitor/clipboard';
 import { NumberInput } from "@tremor/react";
 import axios from 'axios';
 import {
@@ -8,11 +9,13 @@ import {
   Button,
   ButtonGroup,
 } from 'react-bootstrap';
+import { FaTrashCan } from 'react-icons/fa6'
 import './Home.css';
+import LoadingSpiner from '../utils/LoadingSpiner';
 
 const server = import.meta.env.VITE_APP_SERVER
 const defaultInfo = {
-  sku: 10000,
+  sku: '10000',
   itemCondition: 'New',
   comment: '',
   link: '',
@@ -25,17 +28,19 @@ type HomeProp = {
 }
 
 const Home: React.FC<HomeProp> = (prop: HomeProp) => {
-  const [Sku, setSku] = useState<number>(defaultInfo.sku)
+  const [Sku, setSku] = useState<string>(defaultInfo.sku)
   const [itemCondition, setItemCondition] = useState<Condition>(defaultInfo.itemCondition as Condition)
   const [comment, setComment] = useState<string>(defaultInfo.comment)
   const [link, setLink] = useState<string>(defaultInfo.link)
   const [platform, setPlatform] = useState<Platform>(defaultInfo.platform as Platform)
   const [shelfLocation, setShelfLocation] = useState<string>(defaultInfo.shelfLocation)
   const [amount, setAmount] = useState<number>(defaultInfo.amount)
-
+  // loading flag
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const handleSkuChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSku(Number(event.target.value))
+    if (!Number(event.target.value)) return
+    setSku((event.target.value))
   }
 
   const handleItemConditionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -43,7 +48,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   }
 
   const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setComment(event.target.value)
+    setComment((event.target.value).toUpperCase())
   }
 
   const handleLinkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,22 +73,33 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
 
   // speed dial comment
   const appendToComment = (info: string) => {
-    if (comment.includes(info)) return
+    const UpperInfo = info.toUpperCase()
+    if (comment.includes(UpperInfo)) return
     const comma = comment ? ', ' : ''
-    return () => setComment(comment + comma + info.toUpperCase())
+    return () => setComment(comment + comma + UpperInfo)
   }
 
-  // clear all info, reset the form
+  // paste txt from clipboard to link
+  const pasteLink = async () => {
+    const clip = await Clipboard.read();
+    setLink(clip.value)
+  }
+
+  // clear input section
+  const clearComment = () => setComment(defaultInfo.comment)
+  const clearLink = () => setLink(defaultInfo.link)
+
+  // clear form and increment sku by 1
   const resetForm = () => {
     setItemCondition(defaultInfo.itemCondition as Condition)
-    setComment(defaultInfo.comment)
-    setLink(defaultInfo.link)
+    clearComment()
+    clearLink()
     setPlatform(defaultInfo.platform as Platform)
     setShelfLocation(defaultInfo.shelfLocation)
     setAmount(defaultInfo.amount)
 
     // automatically increment the sku for next form
-    if (Sku) setSku(Sku + 1)
+    if (Sku) setSku(String(Number(Sku) + 1))
   }
 
   // submit button onclick
@@ -96,7 +112,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
 
     // construct data
     const data: QARecord = {
-      sku: Sku,
+      sku: Number(Sku),
       time: new Date().toLocaleTimeString(),
       itemCondition: itemCondition,
       comment: comment ?? '',
@@ -104,9 +120,10 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
       platform: platform,
       shelfLocation: shelfLocation,
       amount: amount,
-      owner: prop.userInfo.name
+      owner: prop.userInfo.id
     }
 
+    setIsLoading(true)
     // send to mongo db
     await axios({
       method: 'put',
@@ -117,8 +134,10 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
     }).then((res) => {
       alert('Upload Success')
       // display pop up
+      setIsLoading(false)
     }).catch((err) => {
       alert('Upload Failed')
+      setIsLoading(false)
       throw err
     })
 
@@ -128,16 +147,17 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
 
   return (
     <IonPage>
+      <LoadingSpiner show={isLoading} />
       <IonHeader>
         <IonToolbar>
           <IonTitle>Home</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">
-        <Form data-bs-theme="dark">
+        <Form>
           <Form.Group>
             <Form.Label>SKU</Form.Label>
-            <Form.Control type="number" value={Sku} onChange={handleSkuChange} />
+            <Form.Control type="text" value={Sku} onChange={handleSkuChange} />
           </Form.Group>
           <hr color='white' />
           <Form.Group id='formgroup'>
@@ -153,18 +173,38 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
           </Form.Group>
           <hr color='white' />
           <Form.Group id='formgroup'>
-            <Form.Label>Comment</Form.Label>
+            <Form.Label style={{ padding: '10px' }}>
+              Comment
+              <Button variant='danger' style={{ right: '30px', position: 'absolute' }} onClick={clearComment}>
+                <FaTrashCan />
+              </Button>
+            </Form.Label>
             <Form.Control type="text" as="textarea" style={{ resize: 'none' }} value={comment} onChange={handleCommentChange} />
           </Form.Group>
           <ButtonGroup size='sm' className="mb-2">
-            <Button onClick={appendToComment('All Parts In')} variant="success">All Parts In</Button>
-            <Button onClick={appendToComment('Missing Accessory')} variant="success">Missing Accessory</Button>
-            <Button onClick={appendToComment('Missing Main Parts')} variant="success">Missing Main Parts</Button>
-            <Button onClick={appendToComment('Black Color')} variant="success">Black Color</Button>
+            <Button onClick={appendToComment('All Parts In')} variant="primary">All Parts In</Button>
+            <Button onClick={appendToComment('Missing Accessory')} variant="primary">Missing Accessory</Button>
+            <Button onClick={appendToComment('Missing Main Parts')} variant="primary">Missing Main Part</Button>
+            <Button onClick={appendToComment('Black Color')} variant="primary">Black Color</Button>
           </ButtonGroup>
+          <ButtonGroup size='sm' className="mb-2">
+            <Button onClick={appendToComment('Power Tested')} variant="primary">Power Tested</Button>
+            <Button onClick={appendToComment('Function Tested')} variant="primary">Function Tested</Button>
+            <Button onClick={appendToComment('Untested')} variant="primary">Untested</Button>
+            <Button onClick={appendToComment('Item Different From Link')} variant="primary"> Item Different From Link</Button>
+          </ButtonGroup>
+          <hr color='white' />
           <Form.Group id='formgroup'>
-            <Form.Label>Link</Form.Label>
-            <Form.Control type="text" as='textarea' style={{ resize: 'none' }} rows={3} value={link} onChange={handleLinkChange} />
+            <Form.Label style={{ padding: '10px' }}>
+              Link
+              <Button variant='danger' style={{ right: '30px', position: 'absolute' }} onClick={clearLink}>
+                <FaTrashCan />
+              </Button>
+            </Form.Label>
+            <Form.Control className="mb-3" type="text" as='textarea' style={{ resize: 'none' }} rows={3} value={link} onChange={handleLinkChange} />
+            <div className="d-grid">
+              <Button onClick={pasteLink}>Paste</Button>
+            </div>
           </Form.Group>
           <hr color='white' />
           <Form.Group id='formgroup'>
@@ -186,7 +226,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
           </Form.Group>
           <hr color='white' />
           <div className="d-grid gap-2">
-            <Button variant="success" onClick={handleSubmit} size='lg'>Submit</Button>
+            <Button variant="warning" onClick={handleSubmit} size='lg'>Submit</Button>
           </div>
         </Form>
       </IonContent>

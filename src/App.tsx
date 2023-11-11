@@ -10,7 +10,7 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { images, apps, home, searchCircle } from 'ionicons/icons';
+import { images, apps, home, search } from 'ionicons/icons';
 import Home from './pages/Home';
 import MyInventory from './pages/MyInventory';
 import ImageUploader from './pages/ImageUploader';
@@ -38,7 +38,8 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Login from './pages/Login';
 import LoadingSpiner from './utils/LoadingSpiner';
-import { QARecord, UserInfo } from './utils/Types';
+import { PieData, QARecord, UserInfo } from './utils/Types';
+import { getChartData } from './utils/utils';
 import SkuQuery from './pages/SkuQuery';
 setupIonicReact();
 
@@ -52,9 +53,11 @@ const App: React.FC = () => {
   const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([]) // array of user owned inventory
   const [isLogin, setIsLogin] = useState<boolean>(false) // login flag
   const [isLoading, setIsLoading] = useState<boolean>(false) // show the spinner component
+  const [pieData, setPieData] = useState<PieData[]>([])
 
   // setter methods
   const refreshUserInventoryArr = async () => {
+    setIsLoading(true)
     // send to mongo db
     await axios({
       method: 'post',
@@ -67,16 +70,19 @@ const App: React.FC = () => {
       const invArr = JSON.parse(res.data)
       if (invArr.length < 1) return alert('No Inventory Found')
       setUserInventoryArr(invArr)
+      setPieData(getChartData(userInventoryArr))
     }).catch((err) => {
+      setIsLoading(false)
       alert('Cannot Load User Inventory')
       throw err
     })
+    setIsLoading(false)
   }
 
   const renderApp = () => {
     if (isLogin) {
       return (
-        <IonApp>
+        <IonApp data-bs-theme="dark">
           <IonReactRouter>
             <IonTabs>
               <IonRouterOutlet>
@@ -90,14 +96,14 @@ const App: React.FC = () => {
                     setIsLogin={setIsLogin}
                     refresh={refreshUserInventoryArr}
                     userInventoryArr={userInventoryArr}
-                    setUserInventoryArr={setUserInventoryArr}
+                    pieChartData={pieData}
                   />
                 </Route>
                 <Route exact path="/ImageUploader">
                   <ImageUploader />
                 </Route>
                 <Route exact path="/SkuQuery">
-                  <SkuQuery setLoading={setIsLogin} />
+                  <SkuQuery />
                 </Route>
                 <Route exact path="/">
                   <Redirect to="/Home" />
@@ -114,11 +120,11 @@ const App: React.FC = () => {
                 </IonTabButton>
                 <IonTabButton tab="ImageUploader" href="/ImageUploader">
                   <IonIcon aria-hidden="true" icon={images} />
-                  <IonLabel>ImageUploader</IonLabel>
+                  <IonLabel>Image Uploader</IonLabel>
                 </IonTabButton>
                 <IonTabButton tab="SkuQuery" href="/SkuQuery">
-                  <IonIcon aria-hidden="true" icon={searchCircle} />
-                  <IonLabel>SkuQuery</IonLabel>
+                  <IonIcon aria-hidden="true" icon={search} />
+                  <IonLabel>SKU Query</IonLabel>
                 </IonTabButton>
               </IonTabBar>
             </IonTabs>
@@ -146,4 +152,4 @@ const App: React.FC = () => {
   )
 }
 
-export default App;
+export default App
