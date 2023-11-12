@@ -12,11 +12,12 @@ import {
 import axios from 'axios'
 import { QARecord } from '../utils/Types';
 import { getVariant, server } from '../utils/utils'
+import { Clipboard } from '@capacitor/clipboard';
 import LoadingSpiner from '../utils/LoadingSpiner';
 
 const SkuQuery: React.FC = () => {
   const [sku, setSku] = useState<string>('')
-  const [inventoryRecord, setinventoryRecord] = useState<any>()
+  const [inventoryRecord, setinventoryRecord] = useState<QARecord>({} as QARecord)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const query = async () => {
@@ -59,47 +60,66 @@ const SkuQuery: React.FC = () => {
     setSku(String(event.target.value))
   }
 
+  // copylink to clipboard
+  const copyLink = async () => await Clipboard.write({ string: inventoryRecord.link })
+
+  // render the result below
   const renderResultCard = (inventory: QARecord) => {
-    if (inventoryRecord) {
+    if (inventoryRecord.sku) {
       return (
         <Card className="text-white mt-3" border={getVariant(inventory.itemCondition)} style={{ margin: 'auto' }}>
           <Card.Header style={{ fontWeight: 'bold' }}>{inventory.sku}</Card.Header>
           <Card.Body>
-            <ListGroup className="list-group-flush" data-bs-theme="dark">
-              <ListGroup.Item variant='dark'>
+            <ListGroup className="list-group-flush">
+              <ListGroup.Item>
+                <Row>
+                  <Col>Amount: </Col>
+                  <Col>{inventory.amount}</Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
                 <Row>
                   <Col>Shelf Location: </Col>
                   <Col>{inventory.shelfLocation}</Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item variant='dark'>
+              <ListGroup.Item>
                 <Row>
                   <Col>Platform: </Col>
                   <Col>{inventory.platform}</Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item variant='dark'>
+              <ListGroup.Item >
                 <Row>
                   <Col>Condition: </Col>
                   <Col><Badge pill bg={getVariant(inventory.itemCondition)}>{inventory.itemCondition}</Badge></Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item variant='dark'>
+              <ListGroup.Item>
                 <Row>
                   <Col>Comment: </Col>
                   <Col>{inventory.comment}</Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item variant='dark'>
+              <ListGroup.Item>
                 <Row>
-                  <Col>Link: </Col>
-                  <Col><a href={inventory.link}>{inventory.link}</a></Col>
+                  <Col>
+                    <p>Link:</p>
+                    <Button variant="success" onClick={copyLink}>Copy</Button>
+                  </Col>
+                  <Col><a href={inventory.link} target="_blank">{inventory.link}</a></Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item variant='dark'>
+              <ListGroup.Item>
                 <Row>
-                  <Col>Time Created: </Col>
-                  <Col>{inventory.platform}</Col>
+                  <Col>Owner: </Col>
+                  <Col>{inventory.owner.name}</Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
+                  <Col>User Active: </Col>
+                  <Col>{inventory.owner.userActive ? 'Active' : 'Inactive'}</Col>
                 </Row>
               </ListGroup.Item>
             </ListGroup>

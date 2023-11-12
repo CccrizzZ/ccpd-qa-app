@@ -58,7 +58,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
             <Button className='mt-3' variant="dark" onClick={logout} style={{ margin: 'auto' }}><RiLogoutBoxRLine /></Button>
           </Col>
         </Row>
-        <Card decoration="top" decorationColor="amber" style={{ padding: 0, minHeight: '250px' }}>
+        <Card decoration="top" decorationColor="amber" style={{ padding: 0 }}>
           <DonutChart
             className="mt-4"
             data={prop.pieChartData}

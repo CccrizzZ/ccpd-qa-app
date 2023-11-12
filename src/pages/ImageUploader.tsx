@@ -1,13 +1,19 @@
-import { ChangeEventHandler, useState } from 'react'
+import { ChangeEventHandler, useEffect, useState } from 'react'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
-import { Button, Form, ListGroup } from 'react-bootstrap'
+import { Button, Col, Form, ListGroup, Row } from 'react-bootstrap'
+import { fileFromPath } from 'formdata-node/file-from-path'
 import LoadingSpinner from '../utils/LoadingSpiner'
+import { server } from '../utils/utils'
+import fs from 'fs'
+import axios from 'axios'
 import './ImageUploader.css'
 
 const ImageUploader: React.FC = () => {
   const [sku, setSku] = useState<number>()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
+  const [fileFormData, setFileFormData] = useState<FormData>(new FormData())
+  const [showSelected, setShowSelected] = useState<boolean>(false)
 
   const handleSkuChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSku(Number(event.target.value))
@@ -16,24 +22,71 @@ const ImageUploader: React.FC = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return
     for (const file of event.target.files) {
+      // console.log(!selectedFiles.includes(file))
+      // console.log()
+      // if (!selectedFiles.includes(file)) {
+      // }
       selectedFiles.push(file)
     }
+    console.log('hey, file has changed length to: ' + selectedFiles.length)
+    selectedFiles.length > 0 ? setShowSelected(true) : setShowSelected(false)
   }
 
   // send async request to upload
   const handleUpload = async () => {
+    if (selectedFiles.length < 1) return
     if (!sku) return alert('Please Enter SKU')
-    if (selectedFiles.length < 1) return alert('Please Select Photos')
     setUploading(true)
 
-    // upload files
+    // append files to form data from selected file array
     for (const file of selectedFiles) {
-      console.log('uploading: ' + file.name)
+      fileFormData.append(file.name, file)
     }
 
+    // post the files to server
+    await axios({
+      method: 'post',
+      url: server + '/imageController/uploadImage/' + sku,
+      responseType: 'text',
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      data: fileFormData
+    }).then((res) => {
+      alert('Upload Success')
+    }).catch((err) => {
+      setUploading(false)
+      alert('Failed to Upload: ' + err.response.status)
+      throw err
+    })
+
     // clean up previous selection
+    setFileFormData(new FormData())
     setSelectedFiles([])
     setUploading(false)
+  }
+
+  // render the selected file section
+  const renderFormDataEntries = () => {
+    if (!showSelected) {
+      return <small style={{ margin: 'auto' }}>Please Select Files</small>
+    }
+    return (
+      <>
+        {selectedFiles.map((file) => {
+          const url = URL.createObjectURL(file)
+          return (
+            <ListGroup.Item key={file.name}>
+              <Row>
+                <Col><img src={url} width="60px"></img></Col>
+                <Col><p>{file.name}</p></Col>
+              </Row>
+            </ListGroup.Item>
+          )
+        })}
+      </>
+    )
   }
 
   return (
@@ -55,13 +108,11 @@ const ImageUploader: React.FC = () => {
             <Form.Label>Select files</Form.Label>
             <Form.Control type="file" multiple onChange={handleFileChange} />
           </Form.Group>
-          <ListGroup>
-            {!selectedFiles ?
-              'All Selected Photos Will Show Up Here...' :
-              selectedFiles.map((item: File) => <ListGroup.Item key={item.name}>{item.name}</ListGroup.Item>)}
-          </ListGroup>
           <hr color='white' />
           <Button variant="success" onClick={handleUpload} disabled={uploading} size='lg'>Upload</Button>
+          <ListGroup>
+            {renderFormDataEntries()}
+          </ListGroup>
         </Form>
       </IonContent>
     </IonPage>

@@ -21,7 +21,7 @@ export interface QARecord {
     platform: Platform,
     shelfLocation: string,
     amount: number,
-    owner?: string
+    owner: any
     images?: string[]
 }
 
