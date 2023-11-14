@@ -1,7 +1,16 @@
 import { QARecord, PieData } from "./Types";
-
+import { Clipboard } from "@capacitor/clipboard";
+// sleep function
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+// server address
 export const server = import.meta.env.VITE_APP_SERVER
+
+// copy to device native clipboard
+export const copy = async (txt: string) => {
+  await Clipboard.write({
+    string: txt
+  })
+}
 
 // sealed = primary
 // new = success

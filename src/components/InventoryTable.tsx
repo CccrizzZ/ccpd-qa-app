@@ -20,14 +20,6 @@ type InvTableProp = {
 }
 
 const InventoryTable: React.FC<InvTableProp> = (prop: InvTableProp) => {
-
-  // copy to clipboard
-  const copy = async (txt: string) => {
-    await Clipboard.write({
-      string: txt
-    })
-  }
-
   // render a single inventory card
   const renderCard = (inventory: QARecord) => {
     return (
@@ -73,7 +65,6 @@ const InventoryTable: React.FC<InvTableProp> = (prop: InvTableProp) => {
               <Row>
                 <Col>
                   Link:
-                  <Button size='sm' variant='success' onClick={() => { copy(inventory.link) }}>Copy Link</Button>
                 </Col>
                 <Col>
                   <Card.Link href={inventory.link}>{inventory.link.substring(0, 50)}</Card.Link>
@@ -89,7 +80,7 @@ const InventoryTable: React.FC<InvTableProp> = (prop: InvTableProp) => {
     )
   }
 
-  // render table from inventory array
+  // render table of inventory card
   const renderTable = () => {
     return (
       <div className='mt-2' style={{ padding: '15px', minHeight: '200px', backgroundColor: '#222', borderRadius: '1em', textAlign: 'center' }}>

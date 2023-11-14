@@ -49,7 +49,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
     })
   }
 
-  const renderUser = () => {
+  const renderUserPage = () => {
     return (
       <div>
         <Row>
@@ -87,7 +87,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">
-        {prop.isLogin ? renderUser() : undefined}
+        {prop.isLogin ? renderUserPage() : undefined}
       </IonContent>
     </IonPage>
   );

@@ -1,40 +1,44 @@
-import { ChangeEventHandler, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
 import { Button, Col, Form, ListGroup, Row } from 'react-bootstrap'
-import { fileFromPath } from 'formdata-node/file-from-path'
 import LoadingSpinner from '../utils/LoadingSpiner'
 import { server } from '../utils/utils'
-import fs from 'fs'
+import { UserInfo } from '../utils/Types'
 import axios from 'axios'
 import './ImageUploader.css'
 
-const ImageUploader: React.FC = () => {
-  const [sku, setSku] = useState<number>()
+type ImageUploaderProp = {
+  userInfo: UserInfo
+}
+
+const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => {
+  const [sku, setSku] = useState<number>(1)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
   const [fileFormData, setFileFormData] = useState<FormData>(new FormData())
-  const [showSelected, setShowSelected] = useState<boolean>(false)
 
   const handleSkuChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSku(Number(event.target.value))
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files) return
+    if (!event.target.files || event.target.files.length < 1) return
+    setSelectedFiles([])
     for (const file of event.target.files) {
-      // console.log(!selectedFiles.includes(file))
-      // console.log()
-      // if (!selectedFiles.includes(file)) {
-      // }
-      selectedFiles.push(file)
+      setSelectedFiles((prevFiles) => [...prevFiles, file])
     }
-    console.log('hey, file has changed length to: ' + selectedFiles.length)
-    selectedFiles.length > 0 ? setShowSelected(true) : setShowSelected(false)
+  }
+
+  // clear everything increment sku by 1
+  const clearForm = () => {
+    setFileFormData(new FormData())
+    setSelectedFiles([])
+    setSku(sku + 1)
   }
 
   // send async request to upload
   const handleUpload = async () => {
-    if (selectedFiles.length < 1) return
+    if (selectedFiles.length < 1) return alert('Please Select Photos')
     if (!sku) return alert('Please Enter SKU')
     setUploading(true)
 
@@ -46,7 +50,7 @@ const ImageUploader: React.FC = () => {
     // post the files to server
     await axios({
       method: 'post',
-      url: server + '/imageController/uploadImage/' + sku,
+      url: server + '/imageController/uploadImage/' + prop.userInfo.id + '/' + sku,
       responseType: 'text',
       withCredentials: true,
       headers: {
@@ -56,20 +60,20 @@ const ImageUploader: React.FC = () => {
     }).then((res) => {
       alert('Upload Success')
     }).catch((err) => {
+      clearForm()
       setUploading(false)
       alert('Failed to Upload: ' + err.response.status)
       throw err
     })
 
     // clean up previous selection
-    setFileFormData(new FormData())
-    setSelectedFiles([])
+    clearForm()
     setUploading(false)
   }
 
   // render the selected file section
-  const renderFormDataEntries = () => {
-    if (!showSelected) {
+  const renderSelectedPhotos = () => {
+    if (selectedFiles.length < 1) {
       return <small style={{ margin: 'auto' }}>Please Select Files</small>
     }
     return (
@@ -94,26 +98,29 @@ const ImageUploader: React.FC = () => {
       <LoadingSpinner show={uploading} />
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Bulk Upload Photos</IonTitle>
+          <IonTitle>Photos Hub</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">
         <Form>
           <Form.Group>
             <Form.Label>SKU</Form.Label>
-            <Form.Control type="number" onChange={handleSkuChange} maxLength={6} />
+            <Form.Control type="number" onChange={handleSkuChange} maxLength={6} value={sku} />
           </Form.Group>
           <hr color='white' />
           <Form.Group controlId="formFileMultiple" className="mb-3">
             <Form.Label>Select files</Form.Label>
             <Form.Control type="file" multiple onChange={handleFileChange} />
           </Form.Group>
-          <hr color='white' />
-          <Button variant="success" onClick={handleUpload} disabled={uploading} size='lg'>Upload</Button>
-          <ListGroup>
-            {renderFormDataEntries()}
-          </ListGroup>
         </Form>
+        <hr color='white' />
+        <div className='d-grid'>
+          <Button variant="success" onClick={handleUpload} disabled={uploading} size='lg'>Upload</Button>
+        </div>
+        <hr color='white' />
+        <ListGroup>
+          {renderSelectedPhotos()}
+        </ListGroup>
       </IonContent>
     </IonPage>
   )

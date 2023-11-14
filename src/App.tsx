@@ -100,7 +100,7 @@ const App: React.FC = () => {
                   />
                 </Route>
                 <Route exact path="/ImageUploader">
-                  <ImageUploader />
+                  <ImageUploader userInfo={userInfo} />
                 </Route>
                 <Route exact path="/SkuQuery">
                   <SkuQuery />
