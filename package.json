@@ -37,7 +37,8 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.11.0",
     "react-router": "^5.3.4",
-    "react-router-dom": "^5.3.4"
+    "react-router-dom": "^5.3.4",
+    "react-spinners": "^0.13.8"
   },
   "devDependencies": {
     "@capacitor/cli": "^5.0.0",

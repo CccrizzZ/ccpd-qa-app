@@ -110,9 +110,6 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
             <Form.Label>Password</Form.Label>
             <Form.Control type="password" placeholder="Enter your password..." value={userPassword} onChange={onPasswordChange} />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="rememberMeCheckbox">
-            <Form.Check type="checkbox" label="Remember me" aria-selected={rememberMe} onChange={onRememberMeChange} />
-          </Form.Group>
           <div className="d-grid gap-2">
             <Button variant="primary" size='lg' onClick={login}>Login</Button>
           </div>

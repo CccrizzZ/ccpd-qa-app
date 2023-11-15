@@ -23,14 +23,17 @@ type MyInvProps = {
   setIsLogin: (login: boolean) => void,
   refresh: () => void,
   userInventoryArr: QARecord[],
-  pieChartData: PieData[]
+  // pieChartData: PieData[]
 }
 
 // Personal profile and dashboard
 const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
+  const [pieData, setPieData] = useState<PieData[]>([])
+
   // refresh on construct
   useEffect(() => {
     prop.refresh()
+    setPieData(getChartData(prop.userInventoryArr))
   }, [])
 
   // logout current user delete http-only cookie
@@ -61,7 +64,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
         <Card decoration="top" decorationColor="amber" style={{ padding: 0 }}>
           <DonutChart
             className="mt-4"
-            data={prop.pieChartData}
+            data={getChartData(prop.userInventoryArr)}
             category="amount"
             index="name"
             valueFormatter={valueFormatter}

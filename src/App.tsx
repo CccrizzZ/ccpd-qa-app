@@ -53,7 +53,6 @@ const App: React.FC = () => {
   const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([]) // array of user owned inventory
   const [isLogin, setIsLogin] = useState<boolean>(false) // login flag
   const [isLoading, setIsLoading] = useState<boolean>(false) // show the spinner component
-  const [pieData, setPieData] = useState<PieData[]>([])
 
   // setter methods
   const refreshUserInventoryArr = async () => {
@@ -70,7 +69,7 @@ const App: React.FC = () => {
       const invArr = JSON.parse(res.data)
       if (invArr.length < 1) return alert('No Inventory Found')
       setUserInventoryArr(invArr)
-      setPieData(getChartData(userInventoryArr))
+      // setPieData(getChartData(userInventoryArr))
     }).catch((err) => {
       setIsLoading(false)
       alert('Cannot Load User Inventory')
@@ -96,7 +95,7 @@ const App: React.FC = () => {
                     setIsLogin={setIsLogin}
                     refresh={refreshUserInventoryArr}
                     userInventoryArr={userInventoryArr}
-                    pieChartData={pieData}
+                  // pieChartData={pieData}
                   />
                 </Route>
                 <Route exact path="/ImageUploader">

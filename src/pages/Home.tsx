@@ -231,7 +231,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
         </Form>
       </IonContent>
     </IonPage>
-  );
-};
+  )
+}
 
 export default Home;

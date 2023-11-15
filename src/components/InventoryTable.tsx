@@ -1,5 +1,6 @@
-import React, { InvalidEvent } from 'react'
+import React, { InvalidEvent, useState } from 'react'
 import { QARecord } from '../utils/Types'
+import { server } from '../utils/utils'
 import {
   Button,
   ButtonGroup,
@@ -11,23 +12,66 @@ import {
   DropdownButton,
   Dropdown
 } from 'react-bootstrap'
-import { Clipboard } from '@capacitor/clipboard';
+import { Switch } from "@tremor/react";
+import { Clipboard } from '@capacitor/clipboard'
 import { getVariant } from '../utils/utils'
 import { FaWarehouse } from 'react-icons/fa6'
+import axios from 'axios'
 
 type InvTableProp = {
   inventoryArr: QARecord[]
 }
 
+// QA personal can only delete or update records created within 24h
 const InventoryTable: React.FC<InvTableProp> = (prop: InvTableProp) => {
+  const [editMode, setEditMode] = useState<boolean>(false)
+  const [showEditForm, setShowEditForm] = useState<boolean>(false)
+  const [editRecord, setEditRecord] = useState<QARecord>({} as QARecord)
+
+  const toggleEditMode = () => setEditMode(!editMode)
+  const editInventory = (inventory: QARecord) => {
+    // populate editRecord with inventory info
+    setEditRecord(inventory)
+    // show form
+    setShowEditForm(true)
+  }
+
+  const deleteInventory = async (inventory: QARecord) => {
+    await axios({
+      method: 'delete',
+      url: server + '/inventoryController/deleteInventoryBySku',
+      responseType: 'text',
+      data: JSON.stringify({ sku: inventory.sku }),
+      withCredentials: true
+    }).then((res) => {
+      alert('Delete Success')
+    }).catch((err) => {
+      alert('Delete Failed')
+      throw err
+    })
+  }
+
+  // button on each card
+  const renderCardButton = (inventory: QARecord) => {
+    if (editMode) {
+      return (
+        <div style={{ position: 'absolute', right: '20px' }}>
+          <Button variant='warning' onClick={() => editInventory(inventory)}>Edit</Button>
+          <Button className='ml-2' variant='danger' onClick={() => deleteInventory(inventory)}>Delete</Button>
+        </div>
+      )
+    }
+  }
+
   // render a single inventory card
   const renderCard = (inventory: QARecord) => {
     return (
       <Card className="text-white mb-3" border={getVariant(inventory.itemCondition)} style={{ margin: 'auto', borderRadius: '1em', textAlign: 'left' }} key={inventory.time}>
-        <Card.Header style={{ textAlign: 'center' }}>
-          <h2 className='ml-2 mt-0 mb-0' style={{ margin: 'auto' }}>{inventory.sku}</h2>
+        <Card.Header style={{ display: 'flex' }}>
+          <h2 className='mt-2 mb-0' style={{ left: '10px' }}>{inventory.sku}</h2>
+          {renderCardButton(inventory)}
         </Card.Header>
-        <Card.Body style={{ backgroundColor: '#333333' }}>
+        <Card.Body style={{ backgroundColor: '#333333', padding: 0 }}>
           <ListGroup className="list-group-flush">
             <ListGroup.Item>
               <Row>
@@ -67,7 +111,7 @@ const InventoryTable: React.FC<InvTableProp> = (prop: InvTableProp) => {
                   Link:
                 </Col>
                 <Col>
-                  <Card.Link href={inventory.link}>{inventory.link.substring(0, 50)}</Card.Link>
+                  <Card.Link href={inventory.link} target='blank'>{inventory.link.substring(0, 50)}</Card.Link>
                 </Col>
               </Row>
             </ListGroup.Item>
@@ -83,7 +127,7 @@ const InventoryTable: React.FC<InvTableProp> = (prop: InvTableProp) => {
   // render table of inventory card
   const renderTable = () => {
     return (
-      <div className='mt-2' style={{ padding: '15px', minHeight: '200px', backgroundColor: '#222', borderRadius: '1em', textAlign: 'center' }}>
+      <div className='mt-2' style={{ padding: '15px', minHeight: '200px', backgroundColor: '#252525', borderRadius: '1em', textAlign: 'center' }}>
         {prop.inventoryArr.map((value) => {
           return renderCard(value)
         })}
@@ -91,16 +135,22 @@ const InventoryTable: React.FC<InvTableProp> = (prop: InvTableProp) => {
     )
   }
 
+
+
   return (
     <div style={{ textAlign: 'center' }}>
-      <ButtonGroup>
-        <DropdownButton as={ButtonGroup} title="Sort By" id="bg-nested-dropdown">
-          <Dropdown.Item eventKey="1">SKU</Dropdown.Item>
-          <Dropdown.Item eventKey="2">Time</Dropdown.Item>
-        </DropdownButton>
-        <Button>Select</Button>
-        <Button>Edit</Button>
-      </ButtonGroup>
+      <div style={{ display: 'flex', backgroundColor: '#252525', borderRadius: '1em', padding: '15px' }}>
+        <ButtonGroup>
+          <DropdownButton as={ButtonGroup} title="Sort By" id="bg-nested-dropdown">
+            <Dropdown.Item eventKey="1">SKU</Dropdown.Item>
+            <Dropdown.Item eventKey="2">Time</Dropdown.Item>
+          </DropdownButton>
+        </ButtonGroup>
+        <div className="mr-4" style={{ right: '20px', position: 'absolute', textAlign: 'center' }}>
+          <Switch className="ml-4" name="switch" checked={editMode} onChange={toggleEditMode} />
+          <label htmlFor="switch" className="text-sm text-gray-500">Edit Mode</label>
+        </div>
+      </div>
       {renderTable()}
     </div>
   )
