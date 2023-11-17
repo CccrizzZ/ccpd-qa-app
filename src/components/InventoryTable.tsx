@@ -10,43 +10,75 @@ import {
   Row,
   Col,
   DropdownButton,
-  Dropdown
+  Dropdown,
+  Form,
+  InputGroup,
+  Modal
 } from 'react-bootstrap'
 import { Switch } from "@tremor/react";
 import { Clipboard } from '@capacitor/clipboard'
 import { getVariant } from '../utils/utils'
+import PopupModal from '../utils/PopupModal'
 import { FaWarehouse } from 'react-icons/fa6'
 import axios from 'axios'
 
-type InvTableProp = {
-  inventoryArr: QARecord[]
+type InvTableProps = {
+  inventoryArr: QARecord[],
+  refresh: () => void
 }
 
 // QA personal can only delete or update records created within 24h
-const InventoryTable: React.FC<InvTableProp> = (prop: InvTableProp) => {
+const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
   const [editMode, setEditMode] = useState<boolean>(false)
+
   const [showEditForm, setShowEditForm] = useState<boolean>(false)
-  const [editRecord, setEditRecord] = useState<QARecord>({} as QARecord)
+  const [record4Edit, setRecord4Edit] = useState<QARecord>({} as QARecord)
+
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState<boolean>(false)
+  const [sku4Delete, setSku4Delete] = useState<number>(0)
 
   const toggleEditMode = () => setEditMode(!editMode)
-  const editInventory = (inventory: QARecord) => {
-    // populate editRecord with inventory info
-    setEditRecord(inventory)
-    // show form
+  const showEditInventoryForm = (inventory: QARecord) => {
+    setRecord4Edit(inventory)
     setShowEditForm(true)
   }
 
-  const deleteInventory = async (inventory: QARecord) => {
+  const showDeleteModal = (inventory: QARecord) => {
+    setSku4Delete(inventory.sku)
+    setShowDeleteConfirmModal(true)
+  }
+
+  const deleteInventory = async (sku: number) => {
+    setShowDeleteConfirmModal(false)
+    // call server to delete
     await axios({
       method: 'delete',
       url: server + '/inventoryController/deleteInventoryBySku',
       responseType: 'text',
-      data: JSON.stringify({ sku: inventory.sku }),
+      data: JSON.stringify({ sku: sku }),
       withCredentials: true
     }).then((res) => {
       alert('Delete Success')
+      props.refresh()
     }).catch((err) => {
-      alert('Delete Failed')
+      alert('Delete Failed, Inventory Cannot be Deleted After 24H')
+      throw err
+    })
+  }
+
+  const updateInventory = async (sku: number, newInventoryInfo: QARecord) => {
+    setShowEditForm(false)
+    await axios({
+      method: 'put',
+      url: server + '/inventoryController/updateInventoryBySku/' + sku,
+      responseType: 'text',
+      data: JSON.stringify({ newInventoryInfo: newInventoryInfo }),
+      withCredentials: true
+    }).then((res) => {
+      alert('Update Success')
+      props.refresh()
+    }).catch((err) => {
+      alert('Update Failed, Please Contact Admin')
       throw err
     })
   }
@@ -56,8 +88,8 @@ const InventoryTable: React.FC<InvTableProp> = (prop: InvTableProp) => {
     if (editMode) {
       return (
         <div style={{ position: 'absolute', right: '20px' }}>
-          <Button variant='warning' onClick={() => editInventory(inventory)}>Edit</Button>
-          <Button className='ml-2' variant='danger' onClick={() => deleteInventory(inventory)}>Delete</Button>
+          <Button variant='warning' onClick={() => showEditInventoryForm(inventory)}>Edit</Button>
+          <Button className='ml-2' variant='danger' onClick={() => showDeleteModal(inventory)}>Delete</Button>
         </div>
       )
     }
@@ -128,17 +160,66 @@ const InventoryTable: React.FC<InvTableProp> = (prop: InvTableProp) => {
   const renderTable = () => {
     return (
       <div className='mt-2' style={{ padding: '15px', minHeight: '200px', backgroundColor: '#252525', borderRadius: '1em', textAlign: 'center' }}>
-        {prop.inventoryArr.map((value) => {
+        {props.inventoryArr.map((value) => {
           return renderCard(value)
         })}
       </div>
     )
   }
 
-
+  // update form wont pickup selected inventory information if placed in child component
+  const renderUpdateForm = () => {
+    return (
+      <Modal style={{ color: '#adb5bd' }} show={showEditForm} size="lg" centered>
+        <Modal.Header className='bg-dark'>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Edit {record4Edit.sku}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className='bg-dark'>
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="Amount">Amount</InputGroup.Text>
+            <Form.Control
+              placeholder={'Amt'}
+              aria-label="Amount"
+              aria-describedby="Amount"
+            />
+          </InputGroup>
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="ItemCondition">Item Condition</InputGroup.Text>
+            <Form.Control
+              placeholder={record4Edit.itemCondition}
+              aria-label="ItemCondition"
+              aria-describedby="ItemCondition"
+            />
+          </InputGroup>
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="comment">Comment</InputGroup.Text>
+            <Form.Control
+              placeholder={record4Edit.comment}
+              aria-label="Comment"
+              aria-describedby="comment"
+            />
+          </InputGroup>
+        </Modal.Body>
+        <Modal.Footer className='bg-dark'>
+          <Button variant='success' onClick={() => updateInventory(record4Edit.sku, record4Edit)}>Confirm Changes</Button>
+          <Button variant='secondary' onClick={() => setShowEditForm(false)}>Close</Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
 
   return (
     <div style={{ textAlign: 'center' }}>
+      <PopupModal
+        title={`Delete ${sku4Delete}?`}
+        content="Record Will Be Permanently Deleted!"
+        show={showDeleteConfirmModal}
+        confirmAction={() => deleteInventory(sku4Delete)}
+        cancelAction={() => setShowDeleteConfirmModal(false)}
+      />
+      {renderUpdateForm()}
       <div style={{ display: 'flex', backgroundColor: '#252525', borderRadius: '1em', padding: '15px' }}>
         <ButtonGroup>
           <DropdownButton as={ButtonGroup} title="Sort By" id="bg-nested-dropdown">

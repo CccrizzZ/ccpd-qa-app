@@ -81,7 +81,7 @@ const App: React.FC = () => {
   const renderApp = () => {
     if (isLogin) {
       return (
-        <IonApp data-bs-theme="dark">
+        <IonApp data-bs-theme="dark" data-theme="dark">
           <IonReactRouter>
             <IonTabs>
               <IonRouterOutlet>

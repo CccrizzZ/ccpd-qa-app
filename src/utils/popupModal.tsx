@@ -5,30 +5,28 @@ type popupModalProp = {
   content: string,
   show: boolean,
   confirmAction: () => void
+  cancelAction: () => void
 }
 
-const popupModal: React.FC<popupModalProp> = (props: popupModalProp) => {
-  if (props.show) {
-    return (
-      <Modal size="lg" aria-labelledby="contained-modal-title-vcenter" centered>
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            Modal heading
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <h4>{props.title}</h4>
-          <p>
-            {props.content}
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={props.confirmAction}>Confirm</Button>
-          <Button onClick={() => { props.show = false }}>Close</Button>
-        </Modal.Footer>
-      </Modal>
-    )
-  }
+const PopupModal: React.FC<popupModalProp> = (props: popupModalProp) => {
+  return (
+    <Modal style={{ color: '#adb5bd' }} show={props.show} size="lg" centered>
+      <Modal.Header className='bg-dark'>
+        <Modal.Title id="contained-modal-title-vcenter">
+          {props.title}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body className='bg-dark'>
+        <p>
+          {props.content}
+        </p>
+      </Modal.Body>
+      <Modal.Footer className='bg-dark'>
+        <Button variant='warning' onClick={props.confirmAction}>Confirm</Button>
+        <Button variant='secondary' onClick={props.cancelAction}>Close</Button>
+      </Modal.Footer>
+    </Modal>
+  )
 }
 
-export default popupModal
+export default PopupModal

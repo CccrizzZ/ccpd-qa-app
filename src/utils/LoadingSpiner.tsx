@@ -1,5 +1,4 @@
 import React from 'react'
-import { Spinner } from 'react-bootstrap'
 import { SyncLoader } from 'react-spinners'
 
 type LoadingSpinerProp = {

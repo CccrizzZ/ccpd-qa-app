@@ -23,17 +23,14 @@ type MyInvProps = {
   setIsLogin: (login: boolean) => void,
   refresh: () => void,
   userInventoryArr: QARecord[],
-  // pieChartData: PieData[]
 }
 
 // Personal profile and dashboard
 const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
-  const [pieData, setPieData] = useState<PieData[]>([])
 
   // refresh on construct
   useEffect(() => {
     prop.refresh()
-    setPieData(getChartData(prop.userInventoryArr))
   }, [])
 
   // logout current user delete http-only cookie
@@ -77,7 +74,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
           />
         </Card>
         <Button className='gap-2 mb-4' variant="primary" onClick={prop.refresh}><RiRefreshLine /></Button>
-        <InventoryTable inventoryArr={prop.userInventoryArr} />
+        <InventoryTable inventoryArr={prop.userInventoryArr} refresh={prop.refresh} />
       </div>
     )
   }

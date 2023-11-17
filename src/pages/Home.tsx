@@ -25,6 +25,7 @@ const defaultInfo = {
 }
 type HomeProp = {
   userInfo: UserInfo,
+  // refresh: () => void
 }
 
 const Home: React.FC<HomeProp> = (prop: HomeProp) => {
@@ -156,8 +157,8 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
       <IonContent class="ion-padding">
         <Form>
           <Form.Group>
-            <Form.Label>SKU</Form.Label>
-            <Form.Control type="text" value={Sku} onChange={handleSkuChange} />
+            <Form.Label style={{ color: '#FFA500', fontWeight: 'bold' }}>SKU</Form.Label>
+            <Form.Control style={{ color: '#FFA500', fontWeight: 'bold', fontSize: '140%' }} type="text" value={Sku} onChange={handleSkuChange} />
           </Form.Group>
           <hr color='white' />
           <Form.Group id='formgroup'>
