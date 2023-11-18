@@ -11,8 +11,7 @@ import {
 } from 'react-bootstrap'
 import axios from 'axios'
 import { QARecord } from '../utils/Types';
-import { getVariant, server } from '../utils/utils'
-import { Clipboard } from '@capacitor/clipboard';
+import { getVariant, server, copy, openInBrowser } from '../utils/utils'
 import LoadingSpiner from '../utils/LoadingSpiner';
 
 const SkuQuery: React.FC = () => {
@@ -61,7 +60,7 @@ const SkuQuery: React.FC = () => {
   }
 
   // copylink to clipboard
-  const copyLink = async () => await Clipboard.write({ string: inventoryRecord.link })
+  const copyLink = async () => await copy(inventoryRecord.link)
 
   // render the result below
   const renderResultCard = (inventory: QARecord) => {
@@ -107,7 +106,7 @@ const SkuQuery: React.FC = () => {
                     <p>Link:</p>
                     <Button variant="success" onClick={copyLink}>Copy</Button>
                   </Col>
-                  <Col><a href={inventory.link} target="_blank">{inventory.link}</a></Col>
+                  <Col><a onClick={() => openInBrowser(inventory.link)} style={{ fontStretch: 'condensed' }}>{inventory.link}</a></Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>

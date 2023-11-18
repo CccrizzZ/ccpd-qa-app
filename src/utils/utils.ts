@@ -1,5 +1,7 @@
-import { QARecord, PieData } from "./Types";
-import { Clipboard } from "@capacitor/clipboard";
+import { QARecord, PieData } from "./Types"
+import { Clipboard } from "@capacitor/clipboard"
+import { Browser } from "@capacitor/browser"
+
 // sleep function
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 // server address
@@ -9,6 +11,12 @@ export const server = import.meta.env.VITE_APP_SERVER
 export const copy = async (txt: string) => {
   await Clipboard.write({
     string: txt
+  })
+}
+
+export const openInBrowser = async (link: string) => {
+  await Browser.open({
+    url: link
   })
 }
 

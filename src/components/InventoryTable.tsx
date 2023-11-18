@@ -16,15 +16,15 @@ import {
   Modal
 } from 'react-bootstrap'
 import { Switch } from "@tremor/react";
-import { Clipboard } from '@capacitor/clipboard'
-import { getVariant } from '../utils/utils'
+import { getVariant, copy, openInBrowser } from '../utils/utils'
 import PopupModal from '../utils/PopupModal'
 import { FaWarehouse } from 'react-icons/fa6'
 import axios from 'axios'
 
 type InvTableProps = {
   inventoryArr: QARecord[],
-  refresh: () => void
+  refresh: () => void,
+  setLoading: (loading: boolean) => void
 }
 
 // QA personal can only delete or update records created within 24h
@@ -68,6 +68,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
 
   const updateInventory = async (sku: number, newInventoryInfo: QARecord) => {
     setShowEditForm(false)
+    props.setLoading(true)
     await axios({
       method: 'put',
       url: server + '/inventoryController/updateInventoryBySku/' + sku,
@@ -81,6 +82,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
       alert('Update Failed, Please Contact Admin')
       throw err
     })
+    props.setLoading(false)
   }
 
   // button on each card
@@ -143,7 +145,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
                   Link:
                 </Col>
                 <Col>
-                  <Card.Link href={inventory.link} target='blank'>{inventory.link.substring(0, 50)}</Card.Link>
+                  <Card.Link onClick={() => { openInBrowser(inventory.link) }}>{inventory.link.substring(0, 50)}</Card.Link>
                 </Col>
               </Row>
             </ListGroup.Item>

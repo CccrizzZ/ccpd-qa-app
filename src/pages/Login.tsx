@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { Button, Fade, Form } from 'react-bootstrap';
 import { SHA256, enc } from 'crypto-js';
@@ -26,7 +26,7 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       url: server + '/userController/checkToken',
       responseType: 'text',
       data: '',
-      withCredentials: true
+      withCredentials: true,
     }).then((res) => {
       if (res.status === 200) {
         prop.setLogin(true)
@@ -39,9 +39,9 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
   }
 
   useEffect(() => {
-    // check token
     checkToken()
   }, [])
+
 
   const onEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUserEmail(event.target.value)

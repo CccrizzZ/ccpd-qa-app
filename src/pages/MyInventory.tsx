@@ -12,6 +12,7 @@ import { QARecord, UserInfo, PieData } from '../utils/Types';
 import InventoryTable from '../components/InventoryTable'
 import { RiRefreshLine, RiLogoutBoxRLine } from "react-icons/ri";
 import { server, getChartData } from '../utils/utils'
+import LoadingSpiner from '../utils/LoadingSpiner';
 
 // chart stuff
 const valueFormatter = (number: number) => `${new Intl.NumberFormat("us").format(number).toString()} Items`;
@@ -27,6 +28,7 @@ type MyInvProps = {
 
 // Personal profile and dashboard
 const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // refresh on construct
   useEffect(() => {
@@ -74,13 +76,14 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
           />
         </Card>
         <Button className='gap-2 mb-4' variant="primary" onClick={prop.refresh}><RiRefreshLine /></Button>
-        <InventoryTable inventoryArr={prop.userInventoryArr} refresh={prop.refresh} />
+        <InventoryTable inventoryArr={prop.userInventoryArr} refresh={prop.refresh} setLoading={setIsLoading} />
       </div>
     )
   }
 
   return (
     <IonPage>
+      <LoadingSpiner show={isLoading} />
       <IonHeader>
         <IonToolbar style={{ display: 'flex' }}>
           <IonTitle>My Inventory</IonTitle>

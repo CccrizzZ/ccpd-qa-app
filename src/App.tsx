@@ -34,7 +34,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import './theme/font.css';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import Login from './pages/Login';
 import LoadingSpiner from './utils/LoadingSpiner';
@@ -53,6 +53,17 @@ const App: React.FC = () => {
   const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([]) // array of user owned inventory
   const [isLogin, setIsLogin] = useState<boolean>(false) // login flag
   const [isLoading, setIsLoading] = useState<boolean>(false) // show the spinner component
+
+  useEffect(() => {
+    // add axios interceptor to catch user token expire error
+    axios.interceptors.response.use((response) => {
+      return response
+    }, (error: AxiosError) => {
+      if (String(error.response?.data).includes('Token has expired')) setIsLogin(false)
+      return Promise.reject(error)
+    })
+  }, [])
+
 
   // setter methods
   const refreshUserInventoryArr = async () => {
