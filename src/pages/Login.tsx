@@ -42,7 +42,6 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
     checkToken()
   }, [])
 
-
   const onEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUserEmail(event.target.value)
   }
@@ -51,17 +50,7 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
     setUserPassword(event.target.value)
   }
 
-  const onRememberMeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRememberMe(event.target.checked)
-  }
-
-  // need to implement sanitization to reduce server calls
-  const sanitize = (input: string) => {
-
-  }
-
   const login = async () => {
-    // maybe put a len check here for less request
     // null check
     if (!userEmail || !userPassword) return alert('Please Enter Both Username and Password')
 
@@ -83,10 +72,12 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       url: server + '/userController/login',
       responseType: 'text',
       data: JSON.stringify(userInfo),
-      withCredentials: true
+      withCredentials: true,
     }).then((res) => {
-      prop.setLogin(true)
-      prop.setUserInfo(JSON.parse(res.data))
+      if (res.status === 200) {
+        prop.setLogin(true)
+        prop.setUserInfo(JSON.parse(res.data))
+      }
     }).catch((err) => {
       alert(' Login Error!!!')
     })

@@ -37,13 +37,12 @@ import './theme/font.css';
 import axios, { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import Login from './pages/Login';
-import LoadingSpiner from './utils/LoadingSpiner';
+import LoadingSpiner from './components/LoadingSpiner';
 import { PieData, QARecord, UserInfo } from './utils/Types';
-import { getChartData } from './utils/utils';
+import { server } from './utils/utils';
 import SkuQuery from './pages/SkuQuery';
 setupIonicReact();
 
-const server = import.meta.env.VITE_APP_SERVER
 const App: React.FC = () => {
   // current user info
   const [userInfo, setUserInfo] = useState<UserInfo>({
@@ -78,7 +77,10 @@ const App: React.FC = () => {
     }).then((res): void => {
       // set user inventory array
       const invArr = JSON.parse(res.data)
-      if (invArr.length < 1) return alert('No Inventory Found')
+      if (invArr.length < 1) {
+        setUserInventoryArr([])
+        return alert('No Inventory Found')
+      }
       setUserInventoryArr(invArr)
       // setPieData(getChartData(userInventoryArr))
     }).catch((err) => {
@@ -106,7 +108,6 @@ const App: React.FC = () => {
                     setIsLogin={setIsLogin}
                     refresh={refreshUserInventoryArr}
                     userInventoryArr={userInventoryArr}
-                  // pieChartData={pieData}
                   />
                 </Route>
                 <Route exact path="/ImageUploader">

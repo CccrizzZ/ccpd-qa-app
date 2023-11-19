@@ -11,7 +11,7 @@ import {
 } from 'react-bootstrap';
 import { FaTrashCan } from 'react-icons/fa6'
 import './Home.css';
-import LoadingSpiner from '../utils/LoadingSpiner';
+import LoadingSpiner from '../components/LoadingSpiner';
 
 const server = import.meta.env.VITE_APP_SERVER
 const defaultInfo = {
@@ -61,7 +61,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   }
 
   const handleShelfLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setShelfLocation(event.target.value as Platform)
+    setShelfLocation(event.target.value)
   }
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -12,7 +12,7 @@ import {
 import axios from 'axios'
 import { QARecord } from '../utils/Types';
 import { getVariant, server, copy, openInBrowser } from '../utils/utils'
-import LoadingSpiner from '../utils/LoadingSpiner';
+import LoadingSpiner from '../components/LoadingSpiner';
 
 const SkuQuery: React.FC = () => {
   const [sku, setSku] = useState<string>('')
@@ -21,6 +21,7 @@ const SkuQuery: React.FC = () => {
 
   const query = async () => {
     if (sku === '') return alert('SKU Cannot be empty')
+    if (sku.length > 6) return alert('Invalid SKU')
     setIsLoading(true)
     // axios request for single inventory info
     await axios({

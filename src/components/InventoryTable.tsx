@@ -17,7 +17,7 @@ import {
 } from 'react-bootstrap'
 import { Switch } from "@tremor/react";
 import { getVariant, copy, openInBrowser } from '../utils/utils'
-import PopupModal from '../utils/PopupModal'
+import PopupModal from './PopupModal'
 import { FaWarehouse } from 'react-icons/fa6'
 import axios from 'axios'
 
@@ -79,7 +79,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
       alert('Update Success')
       props.refresh()
     }).catch((err) => {
-      alert('Update Failed, Please Contact Admin')
+      alert('Update Failed')
       throw err
     })
     props.setLoading(false)
@@ -169,6 +169,35 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
     )
   }
 
+
+  const handleItemConditionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    // setItemCondition(event.target.value as Condition)
+  }
+
+  const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // setComment((event.target.value).toUpperCase())
+  }
+
+  const handleLinkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  }
+
+  const handlePlatformChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    // setPlatform(event.target.value as Platform)
+  }
+
+  const handleShelfLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // setShelfLocation(event.target.value as Platform)
+  }
+
+  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (Number(event.target.value) < 1) {
+      setRecord4Edit({ ...record4Edit, amount: 1 })
+    } else {
+      setRecord4Edit({ ...record4Edit, amount: Number(event.target.value) })
+    }
+  }
+
   // update form wont pickup selected inventory information if placed in child component
   const renderUpdateForm = () => {
     return (
@@ -178,29 +207,66 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
             Edit {record4Edit.sku}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className='bg-dark'>
-          <InputGroup className="mb-3">
+        <Modal.Body className='bg-dark' data-bs-theme="dark">
+          <InputGroup className="mb-3" >
             <InputGroup.Text id="Amount">Amount</InputGroup.Text>
             <Form.Control
-              placeholder={'Amt'}
+              onChange={handleAmountChange}
+              placeholder={'Amount'}
               aria-label="Amount"
               aria-describedby="Amount"
+              value={record4Edit.amount}
             />
           </InputGroup>
           <InputGroup className="mb-3">
             <InputGroup.Text id="ItemCondition">Item Condition</InputGroup.Text>
             <Form.Control
-              placeholder={record4Edit.itemCondition}
+              placeholder={'Item Condition'}
               aria-label="ItemCondition"
               aria-describedby="ItemCondition"
+              value={record4Edit.itemCondition}
             />
           </InputGroup>
           <InputGroup className="mb-3">
-            <InputGroup.Text id="comment">Comment</InputGroup.Text>
+            <InputGroup.Text id="Platform">Platform</InputGroup.Text>
             <Form.Control
-              placeholder={record4Edit.comment}
+              placeholder={'Platform'}
+              aria-label="Platform"
+              aria-describedby="Platform"
+              value={record4Edit.platform}
+            />
+          </InputGroup>
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="ShelfLocation">Shelf Location</InputGroup.Text>
+            <Form.Control
+              placeholder={'ShelfLocation'}
+              aria-label="ShelfLocation"
+              aria-describedby="ShelfLocation"
+              value={record4Edit.shelfLocation}
+            />
+          </InputGroup>
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="Comment">Comment</InputGroup.Text>
+            <Form.Control
+              placeholder={'Comment'}
+              style={{ resize: 'none' }}
+              rows={3}
+              as="textarea"
+              value={record4Edit.comment}
               aria-label="Comment"
-              aria-describedby="comment"
+              aria-describedby="Comment"
+            />
+          </InputGroup>
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="Link">Link</InputGroup.Text>
+            <Form.Control
+              placeholder={'Link'}
+              style={{ resize: 'none' }}
+              rows={3}
+              as="textarea"
+              value={record4Edit.link}
+              aria-label="Link"
+              aria-describedby="Link"
             />
           </InputGroup>
         </Modal.Body>

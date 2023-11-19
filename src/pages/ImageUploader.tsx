@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
 import { Button, Col, Form, ListGroup, Row } from 'react-bootstrap'
-import LoadingSpinner from '../utils/LoadingSpiner'
+import LoadingSpinner from '../components/LoadingSpiner'
 import { server } from '../utils/utils'
 import { UserInfo } from '../utils/Types'
 import axios from 'axios'
@@ -98,7 +98,7 @@ const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => 
       <LoadingSpinner show={uploading} />
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Photos Hub</IonTitle>
+          <IonTitle>Image Uploader</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">

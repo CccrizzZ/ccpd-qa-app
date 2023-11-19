@@ -12,16 +12,16 @@ import { QARecord, UserInfo, PieData } from '../utils/Types';
 import InventoryTable from '../components/InventoryTable'
 import { RiRefreshLine, RiLogoutBoxRLine } from "react-icons/ri";
 import { server, getChartData } from '../utils/utils'
-import LoadingSpiner from '../utils/LoadingSpiner';
+import LoadingSpiner from '../components/LoadingSpiner';
 
-// chart stuff
+// chart formatter
 const valueFormatter = (number: number) => `${new Intl.NumberFormat("us").format(number).toString()} Items`;
 
 // props from App.tsx
 type MyInvProps = {
   userInfo: UserInfo,
   isLogin: boolean,
-  setIsLogin: (login: boolean) => void,
+  setIsLogin: React.Dispatch<React.SetStateAction<boolean>>,
   refresh: () => void,
   userInventoryArr: QARecord[],
 }
@@ -30,7 +30,7 @@ type MyInvProps = {
 const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  // refresh on construct
+  // refresh user inventory array on construct
   useEffect(() => {
     prop.refresh()
   }, [])
