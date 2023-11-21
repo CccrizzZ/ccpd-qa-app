@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Condition, Platform, QARecord } from '../utils/Types'
+import { Condition, Marketplace, Platform, QARecord } from '../utils/Types'
 import { server } from '../utils/utils'
 import {
   Button,
@@ -122,6 +122,12 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
             </ListGroup.Item>
             <ListGroup.Item>
               <Row>
+                <Col>Marketplace: </Col>
+                <Col>{inventory.marketplace}</Col>
+              </Row>
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <Row>
                 <Col>Condition: </Col>
                 <Col><Badge pill bg={getVariant(inventory.itemCondition)}>{inventory.itemCondition}</Badge></Col>
               </Row>
@@ -194,6 +200,10 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
     setRecord4Edit({ ...record4Edit, amount: Number(event.target.value) })
   }
 
+  const handleMarketplaceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setRecord4Edit({ ...record4Edit, marketplace: event.target.value as Marketplace })
+  }
+
   // update form wont pickup selected inventory information if placed in child component
   const renderUpdateForm = () => {
     return (
@@ -228,6 +238,16 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
               <option value="Amazon">Amazon</option>
               <option value="eBay">eBay</option>
               <option value="Official Website">Official Website</option>
+              <option value="Other">Other</option>
+            </Form.Select>
+          </InputGroup>
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="Marketplace">Marketplace</InputGroup.Text>
+            <Form.Select value={record4Edit.marketplace} aria-label="Marketplace" onChange={handleMarketplaceChange}>
+              <option value="Hibid">Hibid</option>
+              <option value="Retail">Retail</option>
+              <option value="eBay">eBay</option>
+              <option value="Wholesale">Wholesale</option>
               <option value="Other">Other</option>
             </Form.Select>
           </InputGroup>

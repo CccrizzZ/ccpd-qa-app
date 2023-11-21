@@ -12,6 +12,13 @@ export type Platform =
     'Official Website' |
     'Other'
 
+export type Marketplace =
+    'Hibid' |
+    'Retail' |
+    'eBay' |
+    'Wholesale' |
+    'Other'
+
 export interface QARecord {
     sku: number,
     time: string,
@@ -21,7 +28,8 @@ export interface QARecord {
     platform: Platform,
     shelfLocation: string,
     amount: number,
-    owner: any
+    owner: any,
+    marketplace?: Marketplace,
     images?: string[]
 }
 

@@ -1,7 +1,7 @@
 import './MyInventory.css'
 import axios from 'axios'
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
-import { useEffect, useState } from 'react'
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, ScrollCustomEvent } from '@ionic/react'
+import { SyntheticEvent, useEffect, useState } from 'react'
 import { DonutChart, Legend, Card } from "@tremor/react"
 import {
   Button,
@@ -22,18 +22,70 @@ type MyInvProps = {
   userInfo: UserInfo,
   isLogin: boolean,
   setIsLogin: React.Dispatch<React.SetStateAction<boolean>>,
-  refresh: () => void,
-  userInventoryArr: QARecord[],
 }
 
 // Personal profile and dashboard
 const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
+  const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([]) // array of user owned inventory
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [page, setPage] = useState<number>(0)
 
   // refresh user inventory array on construct
   useEffect(() => {
-    prop.refresh()
+    refreshUserInventoryArr()
   }, [])
+
+  const refreshUserInventoryArr = async () => {
+    setIsLoading(true)
+    setPage(0)
+    setUserInventoryArr([])
+    alert(page)
+    // send to mongo db
+    await axios({
+      method: 'post',
+      url: server + '/inventoryController/getInventoryByOwnerId/' + page,
+      withCredentials: true,
+      responseType: 'text',
+      data: JSON.stringify({ 'id': String(prop.userInfo.id) })
+    }).then((res): void => {
+      const invArr = JSON.parse(res.data)
+      if (invArr.length < 1) {
+        setUserInventoryArr([])
+        return alert('No Inventory Found')
+      }
+      setUserInventoryArr(invArr)
+    }).catch((err) => {
+      setIsLoading(false)
+      alert('Cannot Load User Inventory')
+      throw err
+    })
+    setIsLoading(false)
+  }
+
+  const loadNextPage = async () => {
+    // increment page
+    const nextPage = page + 1
+    setPage(nextPage)
+    alert(page)
+
+    // grab next page and put it into user inventory array
+    await axios({
+      method: 'post',
+      url: server + '/inventoryController/getInventoryByOwnerId/' + nextPage,
+      withCredentials: true,
+      responseType: 'text',
+      data: JSON.stringify({ 'id': String(prop.userInfo.id) })
+    }).then((res): void => {
+      // parse inventory json data
+      const invArr = JSON.parse(res.data)
+      // set user inventory array
+      setUserInventoryArr(userInventoryArr.concat(invArr))
+    }).catch((err) => {
+      alert('Cannot Load User Inventory')
+      throw err
+    })
+
+  }
 
   // logout current user delete http-only cookie
   const logout = async () => {
@@ -54,6 +106,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
   const renderUserPage = () => {
     return (
       <div>
+        <h2 style={{ position: 'fixed' }}>{page}</h2>
         <Row>
           <Col><h2>{prop.userInfo.name}</h2></Col>
           <Col style={{ textAlign: 'right' }}>
@@ -63,7 +116,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
         <Card decoration="top" decorationColor="amber" style={{ padding: 0 }}>
           <DonutChart
             className="mt-4"
-            data={getChartData(prop.userInventoryArr)}
+            data={getChartData(userInventoryArr)}
             category="amount"
             index="name"
             valueFormatter={valueFormatter}
@@ -75,8 +128,11 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
             colors={["green", "violet", "sky", "rose", "slate", "orange"]}
           />
         </Card>
-        <Button className='gap-2 mb-4' variant="primary" onClick={prop.refresh}><RiRefreshLine /></Button>
-        <InventoryTable inventoryArr={prop.userInventoryArr} refresh={prop.refresh} setLoading={setIsLoading} />
+        <Button className='gap-2 mb-4' variant="primary" onClick={() => refreshUserInventoryArr()}><RiRefreshLine /></Button>
+        <InventoryTable inventoryArr={userInventoryArr} refresh={() => refreshUserInventoryArr()} setLoading={setIsLoading} />
+        <div className="d-grid gap-2 mt-3">
+          <Button variant='success' onClick={loadNextPage}>Load More...</Button>
+        </div>
       </div>
     )
   }

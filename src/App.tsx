@@ -49,7 +49,6 @@ const App: React.FC = () => {
     id: '',
     name: ''
   })
-  const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([]) // array of user owned inventory
   const [isLogin, setIsLogin] = useState<boolean>(false) // login flag
   const [isLoading, setIsLoading] = useState<boolean>(false) // show the spinner component
 
@@ -63,34 +62,7 @@ const App: React.FC = () => {
     })
   }, [])
 
-  // TODO:
-  // paged query 
-  const refreshUserInventoryArr = async () => {
-    setIsLoading(true)
-    // send to mongo db
-    await axios({
-      method: 'post',
-      url: server + '/inventoryController/getInventoryByOwnerId',
-      withCredentials: true,
-      responseType: 'text',
-      data: JSON.stringify({ 'id': String(userInfo.id) })
-    }).then((res): void => {
-      // parse inventory json data
-      const invArr = JSON.parse(res.data)
-      // clear user inventory array
-      if (invArr.length < 1) {
-        setUserInventoryArr([])
-        return alert('No Inventory Found')
-      }
-      // set user inventory array
-      setUserInventoryArr(invArr)
-    }).catch((err) => {
-      setIsLoading(false)
-      alert('Cannot Load User Inventory')
-      throw err
-    })
-    setIsLoading(false)
-  }
+
 
   const renderApp = () => {
     if (isLogin) {
@@ -107,8 +79,6 @@ const App: React.FC = () => {
                     userInfo={userInfo}
                     isLogin={isLogin}
                     setIsLogin={setIsLogin}
-                    refresh={refreshUserInventoryArr}
-                    userInventoryArr={userInventoryArr}
                   />
                 </Route>
                 <Route exact path="/ImageUploader">

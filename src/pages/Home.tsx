@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { Condition, Platform, QARecord, UserInfo } from '../utils/Types';
+import { Condition, Marketplace, Platform, QARecord, UserInfo } from '../utils/Types';
 import { Clipboard } from '@capacitor/clipboard';
 import { NumberInput } from "@tremor/react";
 import axios from 'axios';
@@ -21,11 +21,11 @@ const defaultInfo = {
   link: '',
   platform: 'Amazon',
   shelfLocation: '',
-  amount: 1
+  amount: 1,
+  marketplace: 'Hibid'
 }
 type HomeProp = {
   userInfo: UserInfo,
-  // refresh: () => void
 }
 
 const Home: React.FC<HomeProp> = (prop: HomeProp) => {
@@ -36,11 +36,14 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   const [platform, setPlatform] = useState<Platform>(defaultInfo.platform as Platform)
   const [shelfLocation, setShelfLocation] = useState<string>(defaultInfo.shelfLocation)
   const [amount, setAmount] = useState<number>(defaultInfo.amount)
+  const [marketplace, setMarketplace] = useState<Marketplace>(defaultInfo.marketplace as Marketplace)
+
   // loading flag
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const handleSkuChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!Number(event.target.value)) return
+    if (!Number(event.target.value) && event.target.value !== '') return
+    if (String(event.target.value).length + 1 > 7) return
     setSku((event.target.value))
   }
 
@@ -72,6 +75,10 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
     }
   }
 
+  const handleMarketplaceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setMarketplace(event.target.value as Marketplace)
+  }
+
   // speed dial comment
   const appendToComment = (info: string) => {
     const UpperInfo = info.toUpperCase()
@@ -98,6 +105,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
     setPlatform(defaultInfo.platform as Platform)
     setShelfLocation(defaultInfo.shelfLocation)
     setAmount(defaultInfo.amount)
+    setMarketplace(defaultInfo.marketplace as Marketplace)
 
     // automatically increment the sku for next form
     if (Sku) setSku(String(Number(Sku) + 1))
@@ -107,7 +115,6 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     // null checks
     if (!Sku) return alert('SKU Missing!')
-    if (!itemCondition) return alert('Please Select Condition!')
     if (!link) return alert('Link Missing!')
     if (!shelfLocation) return alert('Shelf Location Missing!')
 
@@ -121,7 +128,8 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
       platform: platform,
       shelfLocation: shelfLocation,
       amount: amount,
-      owner: prop.userInfo.id
+      owner: prop.userInfo.id,
+      marketplace: marketplace
     }
 
     setIsLoading(true)
@@ -158,7 +166,12 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
         <Form>
           <Form.Group>
             <Form.Label style={{ color: '#FFA500', fontWeight: 'bold' }}>SKU</Form.Label>
-            <Form.Control style={{ color: '#FFA500', fontWeight: 'bold', fontSize: '140%' }} type="text" value={Sku} onChange={handleSkuChange} />
+            <Form.Control
+              style={{ color: '#FFA500', fontWeight: 'bold', fontSize: '140%' }}
+              type="number"
+              value={Sku}
+              onChange={handleSkuChange}
+            />
           </Form.Group>
           <hr color='white' />
           <Form.Group id='formgroup'>
@@ -208,12 +221,22 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
             </div>
           </Form.Group>
           <hr color='white' />
-          <Form.Group id='formgroup'>
+          <Form.Group id='Platform'>
             <Form.Label>Platform</Form.Label>
-            <Form.Select value={platform} aria-label="Item Condition" onChange={handlePlatformChange}>
+            <Form.Select className="mb-3" value={platform} aria-label="Item Condition" onChange={handlePlatformChange}>
               <option value="Amazon">Amazon</option>
               <option value="eBay">eBay</option>
               <option value="Official Website">Official Website</option>
+              <option value="Other">Other</option>
+            </Form.Select>
+          </Form.Group>
+          <Form.Group id='Marketplace'>
+            <Form.Label>Marketplace</Form.Label>
+            <Form.Select className="mb-3" value={marketplace} aria-label="Marketplace" onChange={handleMarketplaceChange}>
+              <option value="Hibid">Hibid</option>
+              <option value="Retail">Retail</option>
+              <option value="eBay">eBay</option>
+              <option value="Wholesale">Wholesale</option>
               <option value="Other">Other</option>
             </Form.Select>
           </Form.Group>

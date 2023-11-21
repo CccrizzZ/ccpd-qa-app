@@ -41,7 +41,8 @@ const SkuQuery: React.FC = () => {
         platform: data['platform'],
         shelfLocation: data['shelfLocation'],
         amount: data['amount'],
-        owner: data['owner']
+        owner: data['owner'],
+        marketplace: data['marketplace']
       }
       setinventoryRecord(resRecord)
     }).catch((err) => {
@@ -87,6 +88,12 @@ const SkuQuery: React.FC = () => {
                 <Row>
                   <Col>Platform: </Col>
                   <Col>{inventory.platform}</Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
+                  <Col>Marketplace: </Col>
+                  <Col>{inventory.marketplace}</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item >
