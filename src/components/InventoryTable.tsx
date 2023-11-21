@@ -1,5 +1,5 @@
-import React, { InvalidEvent, useState } from 'react'
-import { QARecord } from '../utils/Types'
+import React, { useState } from 'react'
+import { Condition, Platform, QARecord } from '../utils/Types'
 import { server } from '../utils/utils'
 import {
   Button,
@@ -77,12 +77,13 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
       withCredentials: true
     }).then((res) => {
       alert('Update Success')
+      props.setLoading(false)
       props.refresh()
     }).catch((err) => {
       alert('Update Failed')
+      props.setLoading(false)
       throw err
     })
-    props.setLoading(false)
   }
 
   // button on each card
@@ -169,33 +170,28 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
     )
   }
 
-
   const handleItemConditionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    // setItemCondition(event.target.value as Condition)
+    setRecord4Edit({ ...record4Edit, itemCondition: event.target.value as Condition })
   }
 
   const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // setComment((event.target.value).toUpperCase())
+    setRecord4Edit({ ...record4Edit, comment: (event.target.value).toUpperCase() })
   }
 
   const handleLinkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-
+    setRecord4Edit({ ...record4Edit, link: event.target.value })
   }
 
   const handlePlatformChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    // setPlatform(event.target.value as Platform)
+    setRecord4Edit({ ...record4Edit, platform: event.target.value as Platform })
   }
 
   const handleShelfLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // setShelfLocation(event.target.value as Platform)
+    setRecord4Edit({ ...record4Edit, shelfLocation: event.target.value })
   }
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (Number(event.target.value) < 1) {
-      setRecord4Edit({ ...record4Edit, amount: 1 })
-    } else {
-      setRecord4Edit({ ...record4Edit, amount: Number(event.target.value) })
-    }
+    setRecord4Edit({ ...record4Edit, amount: Number(event.target.value) })
   }
 
   // update form wont pickup selected inventory information if placed in child component
@@ -218,23 +214,22 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
               value={record4Edit.amount}
             />
           </InputGroup>
-          <InputGroup className="mb-3">
-            <InputGroup.Text id="ItemCondition">Item Condition</InputGroup.Text>
-            <Form.Control
-              placeholder={'Item Condition'}
-              aria-label="ItemCondition"
-              aria-describedby="ItemCondition"
-              value={record4Edit.itemCondition}
-            />
-          </InputGroup>
+          <Form.Select className="mb-3" value={record4Edit.itemCondition} aria-label="Item Condition" onChange={handleItemConditionChange}>
+            <option value="New">New</option>
+            <option value="Sealed">Sealed</option>
+            <option value="Used">Used</option>
+            <option value="Used Like New">Used Like New</option>
+            <option value="Damaged">Damaged</option>
+            <option value="As Is">As Is</option>
+          </Form.Select>
           <InputGroup className="mb-3">
             <InputGroup.Text id="Platform">Platform</InputGroup.Text>
-            <Form.Control
-              placeholder={'Platform'}
-              aria-label="Platform"
-              aria-describedby="Platform"
-              value={record4Edit.platform}
-            />
+            <Form.Select value={record4Edit.platform} aria-label="Item Condition" onChange={handlePlatformChange}>
+              <option value="Amazon">Amazon</option>
+              <option value="eBay">eBay</option>
+              <option value="Official Website">Official Website</option>
+              <option value="Other">Other</option>
+            </Form.Select>
           </InputGroup>
           <InputGroup className="mb-3">
             <InputGroup.Text id="ShelfLocation">Shelf Location</InputGroup.Text>
@@ -243,6 +238,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
               aria-label="ShelfLocation"
               aria-describedby="ShelfLocation"
               value={record4Edit.shelfLocation}
+              onChange={handleShelfLocationChange}
             />
           </InputGroup>
           <InputGroup className="mb-3">
@@ -253,6 +249,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
               rows={3}
               as="textarea"
               value={record4Edit.comment}
+              onChange={handleCommentChange}
               aria-label="Comment"
               aria-describedby="Comment"
             />
@@ -265,6 +262,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
               rows={3}
               as="textarea"
               value={record4Edit.link}
+              onChange={handleLinkChange}
               aria-label="Link"
               aria-describedby="Link"
             />

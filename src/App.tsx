@@ -63,8 +63,8 @@ const App: React.FC = () => {
     })
   }, [])
 
-
-  // setter methods
+  // TODO:
+  // paged query 
   const refreshUserInventoryArr = async () => {
     setIsLoading(true)
     // send to mongo db
@@ -75,14 +75,15 @@ const App: React.FC = () => {
       responseType: 'text',
       data: JSON.stringify({ 'id': String(userInfo.id) })
     }).then((res): void => {
-      // set user inventory array
+      // parse inventory json data
       const invArr = JSON.parse(res.data)
+      // clear user inventory array
       if (invArr.length < 1) {
         setUserInventoryArr([])
         return alert('No Inventory Found')
       }
+      // set user inventory array
       setUserInventoryArr(invArr)
-      // setPieData(getChartData(userInventoryArr))
     }).catch((err) => {
       setIsLoading(false)
       alert('Cannot Load User Inventory')

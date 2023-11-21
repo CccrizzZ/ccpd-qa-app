@@ -1,6 +1,6 @@
 import { Modal, Button } from 'react-bootstrap';
 
-type popupModalProp = {
+type PopupModalProp = {
   title: string,
   content: string,
   show: boolean,
@@ -8,7 +8,7 @@ type popupModalProp = {
   cancelAction: () => void
 }
 
-const PopupModal: React.FC<popupModalProp> = (props: popupModalProp) => {
+const PopupModal: React.FC<PopupModalProp> = (props: PopupModalProp) => {
   return (
     <Modal style={{ color: '#adb5bd' }} show={props.show} size="lg" centered>
       <Modal.Header className='bg-dark'>

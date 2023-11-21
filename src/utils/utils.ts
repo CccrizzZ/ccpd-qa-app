@@ -3,7 +3,8 @@ import { Clipboard } from "@capacitor/clipboard"
 import { Browser } from "@capacitor/browser"
 
 // sleep function
-export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
+
 // server address
 export const server = import.meta.env.VITE_APP_SERVER
 

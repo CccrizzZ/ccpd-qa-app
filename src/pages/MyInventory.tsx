@@ -1,18 +1,18 @@
-import './MyInventory.css';
-import axios from 'axios';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { useEffect, useState } from 'react';
-import { DonutChart, Legend, Card } from "@tremor/react";
+import './MyInventory.css'
+import axios from 'axios'
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
+import { useEffect, useState } from 'react'
+import { DonutChart, Legend, Card } from "@tremor/react"
 import {
   Button,
   Row,
   Col
-} from 'react-bootstrap';
-import { QARecord, UserInfo, PieData } from '../utils/Types';
+} from 'react-bootstrap'
+import { QARecord, UserInfo, PieData } from '../utils/Types'
 import InventoryTable from '../components/InventoryTable'
-import { RiRefreshLine, RiLogoutBoxRLine } from "react-icons/ri";
+import { RiRefreshLine, RiLogoutBoxRLine } from "react-icons/ri"
 import { server, getChartData } from '../utils/utils'
-import LoadingSpiner from '../components/LoadingSpiner';
+import LoadingSpiner from '../components/LoadingSpiner'
 
 // chart formatter
 const valueFormatter = (number: number) => `${new Intl.NumberFormat("us").format(number).toString()} Items`;
@@ -93,7 +93,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
         {prop.isLogin ? renderUserPage() : undefined}
       </IonContent>
     </IonPage>
-  );
-};
+  )
+}
 
-export default MyInventory;
+export default MyInventory

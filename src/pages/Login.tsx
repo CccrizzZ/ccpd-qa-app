@@ -4,23 +4,23 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/rea
 import { Button, Fade, Form } from 'react-bootstrap';
 import { SHA256, enc } from 'crypto-js';
 import { User, UserInfo } from '../utils/Types';
-import { sleep, server } from '../utils/utils';
+import { server } from '../utils/utils';
+import RegistrationModel from '../components/RegistrationModel';
 
 type LoginProp = {
   setLogin: React.Dispatch<React.SetStateAction<boolean>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setUserInfo: React.Dispatch<React.SetStateAction<UserInfo>>
 }
 
 const Login: React.FC<LoginProp> = (prop: LoginProp) => {
   const [userEmail, setUserEmail] = useState<string>('')
   const [userPassword, setUserPassword] = useState<string>('')
-  const [rememberMe, setRememberMe] = useState<boolean>(false)
+  const [showReg, setShowReg] = useState<boolean>(false)
 
   // checks if jwt token is in http only cookie
   const checkToken = async () => {
     prop.setLoading(true)
-    await sleep(1000)
     await axios({
       method: 'post',
       url: server + '/userController/checkToken',
@@ -66,7 +66,7 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
 
     // send request
     prop.setLoading(true)
-    await sleep(1000)
+    // await sleep(1000)
     await axios({
       method: 'post',
       url: server + '/userController/login',
@@ -92,6 +92,7 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">
+        <RegistrationModel show={showReg} cancelAction={() => setShowReg(false)} />
         <Form>
           <Form.Group className="mb-3" controlId="loginForm.unameInput1">
             <Form.Label>Email address</Form.Label>
@@ -102,7 +103,8 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
             <Form.Control type="password" placeholder="Enter your password..." value={userPassword} onChange={onPasswordChange} />
           </Form.Group>
           <div className="d-grid gap-2">
-            <Button variant="primary" size='lg' onClick={login}>Login</Button>
+            <Button variant="success" size='lg' onClick={login}>Login</Button>
+            <Button variant="primary" size='lg' onClick={() => setShowReg(true)}>Register</Button>
           </div>
         </Form>
       </IonContent>
