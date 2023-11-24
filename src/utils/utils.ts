@@ -105,3 +105,44 @@ export const getChartData = (inventoryArr: QARecord[]) => {
   ]
   return data
 }
+
+// object type from server
+export type InvInfo = {
+  "Used": number,
+  "As Is": number,
+  "New": number,
+  "Used Like New": number,
+  "Sealed": number
+}
+
+// tremor chart data
+export type ChartData = {
+  name: string,
+  amount: number
+}
+
+// converts server responsed data to chart data
+export const convertChartData = (info: InvInfo) => {
+  return [
+    {
+      name: 'New',
+      amount: info['New']
+    },
+    {
+      name: 'Used',
+      amount: info['Used']
+    },
+    {
+      name: 'As Is',
+      amount: info['As Is']
+    },
+    {
+      name: 'Used Like New',
+      amount: info['Used Like New']
+    },
+    {
+      name: 'Sealed',
+      amount: info['Sealed']
+    },
+  ]
+}

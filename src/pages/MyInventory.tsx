@@ -1,8 +1,12 @@
 import './MyInventory.css'
 import axios from 'axios'
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, ScrollCustomEvent } from '@ionic/react'
-import { SyntheticEvent, useEffect, useState } from 'react'
-import { DonutChart, Legend, Card } from "@tremor/react"
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
+import { useEffect, useState } from 'react'
+import {
+  DonutChart,
+  Legend,
+  Card
+} from "@tremor/react"
 import {
   Button,
   Row,
@@ -11,7 +15,7 @@ import {
 import { QARecord, UserInfo, PieData } from '../utils/Types'
 import InventoryTable from '../components/InventoryTable'
 import { RiRefreshLine, RiLogoutBoxRLine } from "react-icons/ri"
-import { server, getChartData } from '../utils/utils'
+import { server, convertChartData, ChartData } from '../utils/utils'
 import LoadingSpiner from '../components/LoadingSpiner'
 
 // chart formatter
@@ -29,31 +33,39 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
   const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([]) // array of user owned inventory
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [page, setPage] = useState<number>(0)
+  const [chartData, setChartData] = useState<ChartData[]>([])
 
   // refresh user inventory array on construct
   useEffect(() => {
     refreshUserInventoryArr()
   }, [])
 
+  // refresh and reset inventory array
   const refreshUserInventoryArr = async () => {
     setIsLoading(true)
-    setPage(0)
+    // react state are set asynchronously state will be set after this block executes
+    const startPage = 0
+    setPage(startPage)
+
+    // clear user inventory array and fetch user inventory stats
     setUserInventoryArr([])
-    alert(page)
-    // send to mongo db
+    fetchUserInvInfo()
+
+    // fetch page 0 from server (sku desc)
     await axios({
       method: 'post',
-      url: server + '/inventoryController/getInventoryByOwnerId/' + page,
+      url: server + '/inventoryController/getInventoryByOwnerId/' + startPage,
       withCredentials: true,
       responseType: 'text',
       data: JSON.stringify({ 'id': String(prop.userInfo.id) })
     }).then((res): void => {
       const invArr = JSON.parse(res.data)
+      // if no inventory clear the inventory array
       if (invArr.length < 1) {
         setUserInventoryArr([])
-        return alert('No Inventory Found')
+      } else {
+        setUserInventoryArr(invArr)
       }
-      setUserInventoryArr(invArr)
     }).catch((err) => {
       setIsLoading(false)
       alert('Cannot Load User Inventory')
@@ -62,12 +74,9 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
     setIsLoading(false)
   }
 
+  // fetch the next page increment the page
   const loadNextPage = async () => {
-    // increment page
     const nextPage = page + 1
-    setPage(nextPage)
-    alert(page)
-
     // grab next page and put it into user inventory array
     await axios({
       method: 'post',
@@ -78,13 +87,15 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
     }).then((res): void => {
       // parse inventory json data
       const invArr = JSON.parse(res.data)
-      // set user inventory array
-      setUserInventoryArr(userInventoryArr.concat(invArr))
+      // if there is something in next page, increment page, else do nothing
+      if (invArr.length > 0) {
+        setUserInventoryArr(userInventoryArr.concat(invArr))
+        setPage(nextPage)
+      }
     }).catch((err) => {
       alert('Cannot Load User Inventory')
       throw err
     })
-
   }
 
   // logout current user delete http-only cookie
@@ -103,6 +114,23 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
     })
   }
 
+  // fetch user inventory stat (get amount by condition)
+  const fetchUserInvInfo = async () => {
+    await axios({
+      method: 'post',
+      url: server + '/inventoryController/getInventoryInfoByOwnerId',
+      withCredentials: true,
+      responseType: 'text',
+      data: JSON.stringify({ 'id': String(prop.userInfo.id) })
+    }).then((res): void => {
+      const invInfoArr = JSON.parse(res.data)
+      setChartData(convertChartData(invInfoArr))
+    }).catch((err) => {
+      alert('Cannot Load User Inventory Info')
+      throw err
+    })
+  }
+
   const renderUserPage = () => {
     return (
       <div>
@@ -116,7 +144,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
         <Card decoration="top" decorationColor="amber" style={{ padding: 0 }}>
           <DonutChart
             className="mt-4"
-            data={getChartData(userInventoryArr)}
+            data={chartData}
             category="amount"
             index="name"
             valueFormatter={valueFormatter}

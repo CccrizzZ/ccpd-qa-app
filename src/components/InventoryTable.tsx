@@ -207,7 +207,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
   // update form wont pickup selected inventory information if placed in child component
   const renderUpdateForm = () => {
     return (
-      <Modal style={{ color: '#adb5bd' }} show={showEditForm} size="lg" centered>
+      <Modal style={{ color: '#adb5bd', width: '90%', margin: 'auto' }} show={showEditForm} size="lg" centered>
         <Modal.Header className='bg-dark'>
           <Modal.Title id="contained-modal-title-vcenter">
             Edit {record4Edit.sku}
@@ -305,7 +305,9 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
         confirmAction={() => deleteInventory(sku4Delete)}
         cancelAction={() => setShowDeleteConfirmModal(false)}
       />
-      {renderUpdateForm()}
+      <div style={{ textAlign: 'center' }}>
+        {renderUpdateForm()}
+      </div>
       <div style={{ display: 'flex', backgroundColor: '#252525', borderRadius: '1em', padding: '15px' }}>
         <ButtonGroup>
           <DropdownButton as={ButtonGroup} title="Sort By" id="bg-nested-dropdown">
