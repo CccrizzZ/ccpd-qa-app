@@ -66,7 +66,6 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
 
     // send request
     prop.setLoading(true)
-    // await sleep(1000)
     await axios({
       method: 'post',
       url: server + '/userController/login',
