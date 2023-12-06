@@ -3,6 +3,7 @@ import { server } from '../utils/utils';
 import { Clipboard } from '@capacitor/clipboard';
 import { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { SHA256, enc } from 'crypto-js';
 
 type RegistrationModelProp = {
   show: boolean,
@@ -16,17 +17,22 @@ type RegInfo = {
   code: string
 }
 
-const RegistrationModel: React.FC<RegistrationModelProp> = (props: RegistrationModelProp) => {
-  const [regInfo, setRegInfo] = useState<RegInfo>({
-    email: '',
-    name: '',
-    password: '',
-    code: ''
-  })
+const defaultRegInfo = {
+  email: '',
+  name: '',
+  password: '',
+  code: ''
+}
+
+const RegistrationModel: React.FC<RegistrationModelProp> = (prop: RegistrationModelProp) => {
+  const [regInfo, setRegInfo] = useState<RegInfo>(defaultRegInfo)
 
   const register = async () => {
     // null check
     if (regInfo.code.length < 1 || regInfo.email.length < 1 || regInfo.name.length < 1 || regInfo.password.length < 1) return alert('Please Complete The Form')
+
+    // set password hashed
+    setRegInfo({ ...regInfo, password: SHA256(regInfo.password).toString(enc.Base64) })
 
     // send register
     await axios({
@@ -37,6 +43,8 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (props: RegistrationM
       withCredentials: true,
     }).then((res) => {
       if (res.status === 200) {
+        setRegInfo(defaultRegInfo)
+        prop.cancelAction()
         return alert('Register Success')
       }
     }).catch((err) => {
@@ -56,7 +64,7 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (props: RegistrationM
   const onInviteCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => setRegInfo({ ...regInfo, code: event.target.value })
 
   return (
-    <Modal style={{ color: '#adb5bd' }} show={props.show} size="lg" centered>
+    <Modal style={{ color: '#adb5bd' }} show={prop.show} size="lg" centered>
       <Modal.Header className='bg-dark'>
         <Modal.Title id="contained-modal-title-vcenter">
           Register
@@ -64,19 +72,19 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (props: RegistrationM
       </Modal.Header>
       <Modal.Body className='bg-dark'>
         <Form>
-          <Form.Group className="mb-3" controlId="loginForm.unameInput1">
+          <Form.Group className="mb-3" controlId="loginForm.email">
             <Form.Label>Email address</Form.Label>
             <Form.Control type="email" placeholder="Enter your email..." value={regInfo.email} onChange={onEmailChange} />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="loginForm.email">
+          <Form.Group className="mb-3" controlId="loginForm.name">
             <Form.Label>User Name</Form.Label>
             <Form.Control type="name" placeholder="Enter your name..." value={regInfo.name} onChange={onNameChange} />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="loginForm.email">
+          <Form.Group className="mb-3" controlId="loginForm.password">
             <Form.Label>Password</Form.Label>
             <Form.Control type="password" placeholder="Enter password..." value={regInfo.password} onChange={onPasswordChange} />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="loginForm.email">
+          <Form.Group className="mb-3" controlId="loginForm.invitationCode">
             <Form.Label>Invitation Code</Form.Label>
             <Form.Control type="name" placeholder="Enter invitation code..." value={regInfo.code} onChange={onInviteCodeChange} />
             <Button className='mt-3' onClick={pasteInviteCode}>Paste</Button>
@@ -85,7 +93,7 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (props: RegistrationM
       </Modal.Body>
       <Modal.Footer className='bg-dark'>
         <Button variant='warning' onClick={register}>Confirm</Button>
-        <Button variant='secondary' onClick={props.cancelAction}>Close</Button>
+        <Button variant='secondary' onClick={prop.cancelAction}>Close</Button>
       </Modal.Footer>
     </Modal>
   )

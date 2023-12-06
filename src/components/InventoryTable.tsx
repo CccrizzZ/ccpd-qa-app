@@ -315,9 +315,9 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
             <Dropdown.Item eventKey="2">Time</Dropdown.Item>
           </DropdownButton>
         </ButtonGroup>
-        <div className="mr-4" style={{ right: '20px', position: 'absolute', textAlign: 'center' }}>
+        <div className="mr-4" style={{ right: '30px', position: 'absolute' }}>
           <Switch className="ml-4" name="switch" checked={editMode} onChange={toggleEditMode} />
-          <label htmlFor="switch" className="text-sm text-gray-500">Edit Mode</label>
+          <label className="text-sm text-gray-500">Edit Mode</label>
         </div>
       </div>
       {renderTable()}
