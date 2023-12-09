@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { Button, Fade, Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { SHA256, enc } from 'crypto-js';
 import { User, UserInfo } from '../utils/Types';
 import { server } from '../utils/utils';
@@ -26,13 +26,14 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       url: server + '/userController/checkToken',
       responseType: 'text',
       data: '',
+      timeout: 3000,
       withCredentials: true,
     }).then((res) => {
       if (res.status === 200) {
         prop.setLogin(true)
         prop.setUserInfo(JSON.parse(res.data))
       }
-    }).catch((err) => {
+    }).catch(() => {
       console.log('please login')
     })
     prop.setLoading(false)

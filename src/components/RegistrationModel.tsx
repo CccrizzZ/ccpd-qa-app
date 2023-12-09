@@ -31,15 +31,13 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (prop: RegistrationMo
     // null check
     if (regInfo.code.length < 1 || regInfo.email.length < 1 || regInfo.name.length < 1 || regInfo.password.length < 1) return alert('Please Complete The Form')
 
-    // set password hashed
-    setRegInfo({ ...regInfo, password: SHA256(regInfo.password).toString(enc.Base64) })
-
-    // send register
+    // send register post request
     await axios({
       method: 'post',
       url: server + '/userController/registerUser',
       responseType: 'text',
-      data: regInfo,
+      timeout: 3000,
+      data: { ...regInfo, password: SHA256(regInfo.password).toString(enc.Base64) },  // send the encoded data to register
       withCredentials: true,
     }).then((res) => {
       if (res.status === 200) {
@@ -48,14 +46,13 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (prop: RegistrationMo
         return alert('Register Success')
       }
     }).catch((err) => {
-      alert('Register Error!!!')
-      console.log(err.response.status)
+      alert('Register Error: ' + err.response.status)
     })
   }
 
   const pasteInviteCode = async () => {
     const clip = await Clipboard.read()
-    setRegInfo({ ...regInfo, code: clip.value })
+    setRegInfo({ ...regInfo, code: clip.value.replace(/(\r\n|\n|\r)/gm, "") })
   }
 
   const onEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => setRegInfo({ ...regInfo, email: event.target.value })

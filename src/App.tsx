@@ -38,8 +38,7 @@ import axios, { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import Login from './pages/Login';
 import LoadingSpiner from './components/LoadingSpiner';
-import { PieData, QARecord, UserInfo } from './utils/Types';
-import { server } from './utils/utils';
+import { UserInfo } from './utils/Types';
 import SkuQuery from './pages/SkuQuery';
 setupIonicReact();
 
@@ -61,8 +60,6 @@ const App: React.FC = () => {
       return Promise.reject(error)
     })
   }, [])
-
-
 
   const renderApp = () => {
     if (isLogin) {

@@ -1,4 +1,4 @@
-import React, { InvalidEvent, useState } from 'react'
+import React, { useState } from 'react'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import {
   Card,
@@ -20,10 +20,12 @@ const SkuQuery: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const query = async () => {
+    // input check
     if (sku === '') return alert('SKU Cannot be empty')
     if (sku.length > 6) return alert('Invalid SKU')
-    setIsLoading(true)
+
     // axios request for single inventory info
+    setIsLoading(true)
     await axios({
       method: 'post',
       url: server + '/inventoryController/getInventoryBySku',
@@ -57,9 +59,7 @@ const SkuQuery: React.FC = () => {
     if (event.key === 'Enter') event.preventDefault()
   }
 
-  const handleSkuChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSku(String(event.target.value))
-  }
+  const handleSkuChange = (event: React.ChangeEvent<HTMLInputElement>) => setSku(String(event.target.value))
 
   // copylink to clipboard
   const copyLink = async () => await copy(inventoryRecord.link)
