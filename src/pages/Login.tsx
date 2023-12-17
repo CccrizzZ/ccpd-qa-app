@@ -73,6 +73,7 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       responseType: 'text',
       data: JSON.stringify(userInfo),
       withCredentials: true,
+      timeout: 3000
     }).then((res) => {
       if (res.status === 200) {
         prop.setLogin(true)

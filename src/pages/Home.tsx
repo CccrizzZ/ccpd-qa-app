@@ -129,6 +129,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
       shelfLocation: shelfLocation,
       amount: amount,
       owner: prop.userInfo.id,
+      ownerName: prop.userInfo.name,
       marketplace: marketplace
     }
 

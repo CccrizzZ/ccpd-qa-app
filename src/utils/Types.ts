@@ -30,7 +30,7 @@ export interface QARecord {
     amount: number,
     owner: any,
     marketplace?: Marketplace,
-    images?: string[]
+    ownerName?: string,
 }
 
 export interface User {
