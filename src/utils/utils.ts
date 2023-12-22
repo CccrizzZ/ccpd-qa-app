@@ -1,6 +1,7 @@
 import { QARecord, PieData } from "./Types"
 import { Clipboard } from "@capacitor/clipboard"
 import { Browser } from "@capacitor/browser"
+import { SHA256, enc } from 'crypto-js';
 
 // sleep function
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
@@ -15,11 +16,14 @@ export const copy = async (txt: string) => {
   })
 }
 
+// capacitor open in device default browser 
 export const openInBrowser = async (link: string) => {
   await Browser.open({
     url: link
   })
 }
+
+export const hashPassword = (password: string) => SHA256(password).toString(enc.Base64)
 
 // sealed = primary
 // new = success

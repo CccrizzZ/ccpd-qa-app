@@ -1,9 +1,8 @@
 import axios from 'axios';
-import { server } from '../utils/utils';
+import { server, hashPassword } from '../utils/utils';
 import { Clipboard } from '@capacitor/clipboard';
 import { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { SHA256, enc } from 'crypto-js';
 
 type RegistrationModelProp = {
   show: boolean,
@@ -37,7 +36,7 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (prop: RegistrationMo
       url: server + '/userController/registerUser',
       responseType: 'text',
       timeout: 3000,
-      data: { ...regInfo, password: SHA256(regInfo.password).toString(enc.Base64) },  // send the encoded data to register
+      data: { ...regInfo, password: hashPassword(regInfo.password) },  // send the encoded data to register
       withCredentials: true,
     }).then((res) => {
       if (res.status === 200) {

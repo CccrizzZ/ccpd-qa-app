@@ -12,6 +12,14 @@ const config: CapacitorConfig = {
   android: {
     loggingBehavior: 'debug'
   },
+  plugins: {
+    CapacitorCookies: {
+      enabled: true
+    },
+    CapacitorHttp: {
+      enabled: true
+    }
+  }
 };
 
 export default config;

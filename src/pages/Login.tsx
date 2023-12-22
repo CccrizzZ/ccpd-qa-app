@@ -4,8 +4,9 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/rea
 import { Button, Form } from 'react-bootstrap';
 import { SHA256, enc } from 'crypto-js';
 import { User, UserInfo } from '../utils/Types';
-import { server } from '../utils/utils';
+import { hashPassword, server } from '../utils/utils';
 import RegistrationModel from '../components/RegistrationModel';
+import { CapacitorHttp, HttpResponse } from '@capacitor/core';
 
 type LoginProp = {
   setLogin: React.Dispatch<React.SetStateAction<boolean>>,
@@ -57,12 +58,10 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
 
     // encode password to sha256 Base 64 string
     // so database only store sha256 hash
-    const passwordHash = SHA256(userPassword).toString(enc.Base64)
-
     // construct user json
-    const userInfo: User = {
+    const userLoginInfo: User = {
       email: userEmail,
-      password: passwordHash,
+      password: hashPassword(userPassword),
     }
 
     // send request
@@ -71,7 +70,7 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       method: 'post',
       url: server + '/userController/login',
       responseType: 'text',
-      data: JSON.stringify(userInfo),
+      data: JSON.stringify(userLoginInfo),
       withCredentials: true,
       timeout: 3000
     }).then((res) => {
