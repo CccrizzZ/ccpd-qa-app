@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react'
 import {
   DonutChart,
   Legend,
-  Card
+  Card,
+  Subtitle
 } from "@tremor/react"
 import {
   Button,
@@ -134,9 +135,11 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
   const renderUserPage = () => {
     return (
       <div>
-        <h2 style={{ position: 'fixed' }}>{page}</h2>
         <Row>
-          <Col><h2>{prop.userInfo.name}</h2></Col>
+          <Col>
+            <h2>{prop.userInfo.name}</h2>
+            <Subtitle>{prop.userInfo.id}</Subtitle>
+          </Col>
           <Col style={{ textAlign: 'right' }}>
             <Button className='mt-3' variant="dark" onClick={logout} style={{ margin: 'auto' }}><RiLogoutBoxRLine /></Button>
           </Col>

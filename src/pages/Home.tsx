@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { Condition, Marketplace, Platform, QARecord, UserInfo } from '../utils/Types';
 import { Clipboard } from '@capacitor/clipboard';
@@ -12,6 +12,7 @@ import {
 import { FaTrashCan } from 'react-icons/fa6'
 import './Home.css';
 import LoadingSpiner from '../components/LoadingSpiner';
+import moment from 'moment';
 
 const server = import.meta.env.VITE_APP_SERVER
 const defaultInfo = {
@@ -29,6 +30,7 @@ type HomeProp = {
 }
 
 const Home: React.FC<HomeProp> = (prop: HomeProp) => {
+  const topRef = useRef<HTMLIonContentElement>(null)
   const [Sku, setSku] = useState<string>(defaultInfo.sku)
   const [itemCondition, setItemCondition] = useState<Condition>(defaultInfo.itemCondition as Condition)
   const [comment, setComment] = useState<string>(defaultInfo.comment)
@@ -64,7 +66,8 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   }
 
   const handleShelfLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setShelfLocation(event.target.value)
+    if (event.target.value.length + 1 > 5) return
+    setShelfLocation((event.target.value).toUpperCase())
   }
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,6 +102,10 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
 
   // clear form and increment sku by 1
   const resetForm = () => {
+    // scroll to top
+    if (topRef.current) topRef.current.scrollToTop(0)
+
+    // reset hooks
     setItemCondition(defaultInfo.itemCondition as Condition)
     clearComment()
     clearLink()
@@ -112,7 +119,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   }
 
   // submit button onclick
-  const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async () => {
     // null checks
     if (!Sku) return alert('SKU Missing!')
     if (!link) return alert('Link Missing!')
@@ -121,7 +128,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
     // construct data
     const data: QARecord = {
       sku: Number(Sku),
-      time: new Date().toLocaleTimeString(),
+      time: moment(new Date()).format('MMM DD YYYY HH:mm:ss'),
       itemCondition: itemCondition,
       comment: comment ?? '',
       link: link,
@@ -143,10 +150,9 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
       withCredentials: true
     }).then((res) => {
       alert('Upload Success')
-      // display pop up
       setIsLoading(false)
     }).catch((err) => {
-      alert('Upload Failed')
+      alert('Upload Failed: ' + err.response.data)
       setIsLoading(false)
       throw err
     })
@@ -156,17 +162,18 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   }
 
   return (
-    <IonPage>
+    <IonPage ref={topRef}>
       <LoadingSpiner show={isLoading} />
       <IonHeader>
         <IonToolbar>
           <IonTitle>Home</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent class="ion-padding">
+      <IonContent ref={topRef} class="ion-padding">
         <Form>
           <Form.Group>
             <Form.Label style={{ color: '#FFA500', fontWeight: 'bold' }}>SKU</Form.Label>
+
             <Form.Control
               style={{ color: '#FFA500', fontWeight: 'bold', fontSize: '140%' }}
               type="number"
@@ -197,16 +204,16 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
             <Form.Control type="text" as="textarea" style={{ resize: 'none' }} value={comment} onChange={handleCommentChange} />
           </Form.Group>
           <ButtonGroup size='sm' className="mb-2">
-            <Button onClick={appendToComment('All Parts In')} variant="primary">All Parts In</Button>
-            <Button onClick={appendToComment('Missing Accessory')} variant="primary">Missing Accessory</Button>
-            <Button onClick={appendToComment('Missing Main Parts')} variant="primary">Missing Main Part</Button>
-            <Button onClick={appendToComment('Black Color')} variant="primary">Black Color</Button>
+            <Button onClick={appendToComment('All Parts In')} variant="success">All Parts In</Button>
+            <Button onClick={appendToComment('Power Tested')} variant="success">Power Tested</Button>
+            <Button onClick={appendToComment('Function Tested')} variant="success">Function Tested</Button>
+            <Button onClick={appendToComment('Black Color')} variant="secondary">Black Color</Button>
           </ButtonGroup>
           <ButtonGroup size='sm' className="mb-2">
-            <Button onClick={appendToComment('Power Tested')} variant="primary">Power Tested</Button>
-            <Button onClick={appendToComment('Function Tested')} variant="primary">Function Tested</Button>
-            <Button onClick={appendToComment('Untested')} variant="primary">Untested</Button>
-            <Button onClick={appendToComment('Item Different From Link')} variant="primary"> Item Different From Link</Button>
+            <Button onClick={appendToComment('Missing Accessory')} variant="danger">Missing Accessories</Button>
+            <Button onClick={appendToComment('Missing Main Parts')} variant="danger">Missing Main Parts</Button>
+            <Button onClick={appendToComment('Untested')} variant="secondary">Untested</Button>
+            <Button onClick={appendToComment('Item Different From Link')} variant="secondary"> Item Different From Link</Button>
           </ButtonGroup>
           <hr color='white' />
           <Form.Group id='formgroup'>
