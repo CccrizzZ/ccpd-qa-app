@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { server, hashPassword } from '../utils/utils';
 import { Clipboard } from '@capacitor/clipboard';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { AppContext } from '../App';
 
 type RegistrationModelProp = {
   show: boolean,
@@ -24,13 +25,14 @@ const defaultRegInfo = {
 }
 
 const RegistrationModel: React.FC<RegistrationModelProp> = (prop: RegistrationModelProp) => {
+  const { setLoading } = useContext(AppContext)
   const [regInfo, setRegInfo] = useState<RegInfo>(defaultRegInfo)
 
   const register = async () => {
     // null check
     if (regInfo.code.length < 1 || regInfo.email.length < 1 || regInfo.name.length < 1 || regInfo.password.length < 1) return alert('Please Complete The Form')
-
     // send register post request
+    setLoading(true)
     await axios({
       method: 'post',
       url: server + '/userController/registerUser',
@@ -39,14 +41,16 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (prop: RegistrationMo
       data: { ...regInfo, password: hashPassword(regInfo.password) },  // send the encoded data to register
       withCredentials: true,
     }).then((res) => {
-      if (res.status === 200) {
+      if (res.status === 201) {
         setRegInfo(defaultRegInfo)
         prop.cancelAction()
         return alert('Register Success')
       }
     }).catch((err) => {
+      setLoading(false)
       alert('Register Error: ' + err.response.status)
     })
+    setLoading(false)
   }
 
   const pasteInviteCode = async () => {

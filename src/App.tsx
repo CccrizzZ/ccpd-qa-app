@@ -35,13 +35,20 @@ import '@ionic/react/css/display.css';
 import './theme/variables.css';
 import './theme/font.css';
 import axios, { AxiosError } from 'axios';
-import { useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import Login from './pages/Login';
 import LoadingSpiner from './components/LoadingSpiner';
 import { UserInfo } from './utils/Types';
 import SkuQuery from './pages/SkuQuery';
 setupIonicReact();
 
+// type for app context
+type ContextType = {
+  setLoading: (l: boolean) => void
+  userInfo: UserInfo
+}
+
+export const AppContext = createContext({} as ContextType)
 const App: React.FC = () => {
   // current user info
   const [userInfo, setUserInfo] = useState<UserInfo>({
@@ -124,10 +131,10 @@ const App: React.FC = () => {
   }
 
   return (
-    <>
+    <AppContext.Provider value={{ setLoading: setIsLoading, userInfo: userInfo }}>
       <LoadingSpiner show={isLoading} />
       {renderApp()}
-    </>
+    </AppContext.Provider>
   )
 }
 

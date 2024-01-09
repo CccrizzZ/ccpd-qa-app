@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { createContext, useRef, useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { Condition, Marketplace, Platform, QARecord, UserInfo } from '../utils/Types';
 import { Clipboard } from '@capacitor/clipboard';
@@ -25,11 +25,13 @@ const defaultInfo = {
   amount: 1,
   marketplace: 'Hibid'
 }
+
 type HomeProp = {
   userInfo: UserInfo,
 }
 
 const Home: React.FC<HomeProp> = (prop: HomeProp) => {
+
   const topRef = useRef<HTMLIonContentElement>(null)
   const [Sku, setSku] = useState<string>(defaultInfo.sku)
   const [itemCondition, setItemCondition] = useState<Condition>(defaultInfo.itemCondition as Condition)
@@ -173,7 +175,6 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
         <Form>
           <Form.Group>
             <Form.Label style={{ color: '#FFA500', fontWeight: 'bold' }}>SKU</Form.Label>
-
             <Form.Control
               style={{ color: '#FFA500', fontWeight: 'bold', fontSize: '140%' }}
               type="number"
