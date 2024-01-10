@@ -6,6 +6,7 @@ import { server } from '../utils/utils'
 import { UserInfo } from '../utils/Types'
 import axios from 'axios'
 import './ImageUploader.css'
+import MyGallery from './MyGallery';
 
 type ImageUploaderProp = {
   userInfo: UserInfo
@@ -50,7 +51,7 @@ const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => 
     // post the files to server
     await axios({
       method: 'post',
-      url: server + '/imageController/uploadImage/' + prop.userInfo.id + '/' + sku,
+      url: `${server}/imageController/uploadImage/${prop.userInfo.id}/${prop.userInfo.name}/${sku}`,
       responseType: 'text',
       withCredentials: true,
       headers: {
@@ -58,11 +59,13 @@ const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => 
       },
       data: fileFormData
     }).then((res) => {
-      alert('Upload Success')
+      if (res.status === 200) {
+        alert(`Upload Success: ${res.status}`)
+      }
     }).catch((err) => {
       clearForm()
       setUploading(false)
-      alert('Failed to Upload: ' + err.response.status)
+      alert(`Failed to Upload:  ${err.response.statusText}`)
       throw err
     })
 
@@ -121,6 +124,8 @@ const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => 
         <ListGroup>
           {renderSelectedPhotos()}
         </ListGroup>
+        <hr color='white' />
+        <MyGallery />
       </IonContent>
     </IonPage>
   )

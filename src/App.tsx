@@ -10,7 +10,7 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { images, apps, home, search } from 'ionicons/icons';
+import { images, apps, home, search, albums } from 'ionicons/icons';
 import Home from './pages/Home';
 import MyInventory from './pages/MyInventory';
 import ImageUploader from './pages/ImageUploader';

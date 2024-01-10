@@ -146,7 +146,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
     // send to mongo db
     await axios({
       method: 'put',
-      url: server + '/inventoryController/createInventory',
+      url: `${server}/inventoryController/createInventory`,
       responseType: 'text',
       data: JSON.stringify(data),
       withCredentials: true

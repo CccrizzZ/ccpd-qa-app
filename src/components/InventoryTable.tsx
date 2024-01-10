@@ -53,7 +53,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
     // call server to delete
     await axios({
       method: 'delete',
-      url: server + '/inventoryController/deleteInventoryBySku',
+      url: `${server}/inventoryController/deleteInventoryBySku`,
       responseType: 'text',
       data: JSON.stringify({ sku: sku }),
       withCredentials: true
@@ -71,7 +71,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
     props.setLoading(true)
     await axios({
       method: 'put',
-      url: server + '/inventoryController/updateInventoryBySku/' + sku,
+      url: `${server}/inventoryController/updateInventoryBySku/${sku}`,
       responseType: 'text',
       data: JSON.stringify({ newInventoryInfo: newInventoryInfo }),
       withCredentials: true

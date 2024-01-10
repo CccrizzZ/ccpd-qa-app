@@ -55,7 +55,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
     // fetch page 0 from server (sku desc)
     await axios({
       method: 'post',
-      url: server + '/inventoryController/getInventoryByOwnerId/' + startPage,
+      url: server + `/inventoryController/getInventoryByOwnerId/${startPage}`,
       withCredentials: true,
       responseType: 'text',
       data: JSON.stringify({ 'id': String(prop.userInfo.id) })
@@ -81,7 +81,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
     // grab next page and put it into user inventory array
     await axios({
       method: 'post',
-      url: server + '/inventoryController/getInventoryByOwnerId/' + nextPage,
+      url: server + `/inventoryController/getInventoryByOwnerId/${nextPage}`,
       withCredentials: true,
       responseType: 'text',
       data: JSON.stringify({ 'id': String(prop.userInfo.id) })

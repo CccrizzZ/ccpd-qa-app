@@ -35,7 +35,7 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (prop: RegistrationMo
     setLoading(true)
     await axios({
       method: 'post',
-      url: server + '/userController/registerUser',
+      url: `${server}/userController/registerUser`,
       responseType: 'text',
       timeout: 3000,
       data: { ...regInfo, password: hashPassword(regInfo.password) },  // send the encoded data to register
