@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
 import { Button, Col, Form, ListGroup, Row } from 'react-bootstrap'
 import LoadingSpinner from '../components/LoadingSpiner'
@@ -6,20 +6,21 @@ import { server } from '../utils/utils'
 import { UserInfo } from '../utils/Types'
 import axios from 'axios'
 import './ImageUploader.css'
-import MyGallery from './MyGallery';
+import MyGallery, { IMyGallery } from './MyGallery';
 
 type ImageUploaderProp = {
   userInfo: UserInfo
 }
 
 const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => {
+  const galleryRef = useRef<IMyGallery>(null);
   const [sku, setSku] = useState<number>(1)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
   const [fileFormData, setFileFormData] = useState<FormData>(new FormData())
 
   const handleSkuChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSku(Number(event.target.value))
+    if (event.target.value.length + 1 < 8) setSku(Number(event.target.value))
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,6 +73,8 @@ const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => 
     // clean up previous selection
     clearForm()
     setUploading(false)
+    galleryRef.current?.fetchAllUrls()
+    galleryRef.current?.fetchAllUrls()
   }
 
   // render the selected file section
@@ -96,6 +99,9 @@ const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => 
     )
   }
 
+  const disableKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') event.preventDefault()
+  }
   return (
     <IonPage>
       <LoadingSpinner show={uploading} />
@@ -108,7 +114,7 @@ const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => 
         <Form>
           <Form.Group>
             <Form.Label>SKU</Form.Label>
-            <Form.Control type="number" onChange={handleSkuChange} maxLength={6} value={sku} />
+            <Form.Control type="number" onChange={handleSkuChange} value={sku} onKeyDown={disableKeyDown} />
           </Form.Group>
           <hr color='white' />
           <Form.Group controlId="formFileMultiple" className="mb-3">
@@ -125,7 +131,7 @@ const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => 
           {renderSelectedPhotos()}
         </ListGroup>
         <hr color='white' />
-        <MyGallery />
+        <MyGallery ref={galleryRef} />
       </IonContent>
     </IonPage>
   )

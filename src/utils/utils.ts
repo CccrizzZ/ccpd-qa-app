@@ -10,7 +10,7 @@ export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
 export const server = import.meta.env.VITE_APP_SERVER
 
 // copy to device native clipboard
-export const copy = async (txt: string) => {
+export const copy = async (txt: string): Promise<void> => {
   await Clipboard.write({
     string: txt
   })
