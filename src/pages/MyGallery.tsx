@@ -65,15 +65,13 @@ const MyGallery: React.ForwardRefExoticComponent<MyGalleryProps & React.RefAttri
     }).then((res) => {
       if (res.status === 200) {
         Object.entries(galleryInfo).map(([key, value]): void => {
-          if (key === sku) {
-            setGalleryInfo({ ...galleryInfo, [key]: galleryInfo[key].filter((val) => val !== url) })
-          }
+          if (key === sku) setGalleryInfo({ ...galleryInfo, [key]: galleryInfo[key].filter((val) => val !== url) })
         })
         alert('Image Deleted!')
       }
     }).catch(() => {
       setLoading(false)
-      alert('Failed to Delete:')
+      alert(`Failed to Delete`)
     })
     setLoading(false)
     setShowPopup(false)
@@ -88,7 +86,8 @@ const MyGallery: React.ForwardRefExoticComponent<MyGalleryProps & React.RefAttri
   // url into array with key of sku
   const processUrlArr = (arr: string[]) => {
     arr.forEach((url) => {
-      const sku = getUrlFileName(url).split('_')[0]
+      // wtf copilot
+      const sku = new URL(url).pathname.split('/')[new URL(url).pathname.split('/').length - 2]
       if (!galleryInfo[sku]) galleryInfo[sku] = []
       if (!galleryInfo[sku].some(item => item === url)) galleryInfo[sku].push(url)
     })
@@ -117,7 +116,7 @@ const MyGallery: React.ForwardRefExoticComponent<MyGalleryProps & React.RefAttri
                 >
                   Delete
                 </Button>
-                <p className='h-12 absolute ml-6'>
+                <p className='h-6 absolute ml-6 text-red-500 bg-stone-800 opacity-80 mt-2'>
                   {getUrlFileName(value)}
                 </p>
               </div>

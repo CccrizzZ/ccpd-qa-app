@@ -60,9 +60,7 @@ const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => 
       },
       data: fileFormData
     }).then((res) => {
-      if (res.status === 200) {
-        alert(`Upload Success: ${res.status}`)
-      }
+      if (res.status === 200) alert(`Upload Success: ${res.status}`)
     }).catch((err) => {
       clearForm()
       setUploading(false)
