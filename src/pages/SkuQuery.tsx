@@ -144,12 +144,17 @@ const SkuQuery: React.FC = () => {
     )
   }
 
+  const clear = () => {
+    setSku('')
+    setinventoryRecord({} as QARecord)
+  }
+
   return (
     <IonPage>
       <LoadingSpiner show={isLoading} />
       <IonHeader>
         <IonToolbar style={{ display: 'flex' }}>
-          <IonTitle>SKU Query</IonTitle>
+          <IonTitle>👁️ SKU Query</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">
@@ -161,6 +166,7 @@ const SkuQuery: React.FC = () => {
         </Form>
         <div className="d-grid gap-2 mt-3">
           <Button variant='success' onClick={query}>Search</Button>
+          <Button variant='primary' onClick={clear}>Clear</Button>
         </div>
         {renderResultCard(inventoryRecord)}
       </IonContent>

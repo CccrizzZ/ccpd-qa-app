@@ -136,8 +136,8 @@ const MyGallery: React.ForwardRefExoticComponent<MyGalleryProps & React.RefAttri
     <div className='grid gap-2'>
       {renderImagePopup()}
       <div className='flex gap-3 mt-3'>
-        <p>Sku From Last 48 Hours</p>
-        <Button className='absolute right-8 h-10' onClick={fetchAllUrls} color='emerald'><RiRefreshLine /></Button>
+        <Button className='h-10' onClick={fetchAllUrls} color='emerald'><RiRefreshLine /></Button>
+        <p className='mt-2 ml-10'>Image From Last 48 Hours 👇</p>
       </div>
       <hr color='white' />
       {Object.entries(galleryInfo).map(([key, values]) => {

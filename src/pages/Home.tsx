@@ -168,7 +168,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
       <LoadingSpiner show={isLoading} />
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Home</IonTitle>
+          <IonTitle>🦕 Home</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent ref={topRef} class="ion-padding">

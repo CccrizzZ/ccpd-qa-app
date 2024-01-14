@@ -105,7 +105,7 @@ const ImageUploader: React.FC<ImageUploaderProp> = (prop: ImageUploaderProp) => 
       <LoadingSpinner show={uploading} />
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Image Uploader</IonTitle>
+          <IonTitle>🖼️ Image Uploader</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">

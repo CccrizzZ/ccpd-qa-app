@@ -173,7 +173,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
       <LoadingSpiner show={isLoading} />
       <IonHeader>
         <IonToolbar style={{ display: 'flex' }}>
-          <IonTitle>My Inventory</IonTitle>
+          <IonTitle>📦 My Inventory</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent class="ion-padding">
