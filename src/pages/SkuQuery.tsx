@@ -34,7 +34,7 @@ const SkuQuery: React.FC = () => {
       data: JSON.stringify({ 'sku': Number(sku) })
     }).then((res) => {
       const data = JSON.parse(res.data)
-      const resRecord: QARecord = {
+      setinventoryRecord({
         sku: data['sku'],
         time: data['time'],
         itemCondition: data['itemCondition'],
@@ -43,10 +43,9 @@ const SkuQuery: React.FC = () => {
         platform: data['platform'],
         shelfLocation: data['shelfLocation'],
         amount: data['amount'],
-        owner: data['owner'],
+        ownerName: data['ownerName'],
         marketplace: data['marketplace']
-      }
-      setinventoryRecord(resRecord)
+      })
     }).catch((err) => {
       alert(`Error: Inventory ${sku} Not Found`)
       setIsLoading(false)
@@ -104,6 +103,12 @@ const SkuQuery: React.FC = () => {
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
+                  <Col>Owner: </Col>
+                  <Col>{inventory.ownerName}</Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
                   <Col>Comment: </Col>
                   <Col>{inventory.comment}</Col>
                 </Row>
@@ -115,18 +120,6 @@ const SkuQuery: React.FC = () => {
                     <Button variant="success" onClick={copyLink}>Copy</Button>
                   </Col>
                   <Col><a onClick={() => openInBrowser(inventory.link)} style={{ fontStretch: 'condensed' }}>{inventory.link}</a></Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Owner: </Col>
-                  <Col>{inventory.owner.name}</Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>User Active: </Col>
-                  <Col>{inventory.owner.userActive ? 'Active' : 'Inactive'}</Col>
                 </Row>
               </ListGroup.Item>
             </ListGroup>
@@ -165,7 +158,7 @@ const SkuQuery: React.FC = () => {
           </Form.Group>
         </Form>
         <div className="d-grid gap-2 mt-3">
-          <Button variant='success' onClick={query}>Search</Button>
+          <Button variant='success' onClick={query}>Search for Q&A Record</Button>
           <Button variant='primary' onClick={clear}>Clear</Button>
         </div>
         {renderResultCard(inventoryRecord)}

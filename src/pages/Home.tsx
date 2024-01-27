@@ -130,7 +130,8 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
     // construct data
     const data: QARecord = {
       sku: Number(Sku),
-      time: moment(new Date()).format('MMM DD YYYY HH:mm:ss'),
+      // time: moment(new Date()).format('MMM DD YYYY HH:mm:ss'),
+      time: '', // let the server decide the time, mongodb sorting only recognize iso format
       itemCondition: itemCondition,
       comment: comment ?? '',
       link: link,
