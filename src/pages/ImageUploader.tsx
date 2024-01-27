@@ -6,7 +6,7 @@ import { server } from '../utils/utils'
 import { UserInfo } from '../utils/Types'
 import axios from 'axios'
 import './ImageUploader.css'
-import MyGallery, { IMyGallery } from './MyGallery';
+import MyGallery, { IMyGallery } from '../components/MyGallery';
 
 type ImageUploaderProp = {
   userInfo: UserInfo

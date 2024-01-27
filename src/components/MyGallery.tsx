@@ -4,7 +4,7 @@ import { Modal } from 'react-bootstrap'
 import axios from 'axios'
 import { QARecord } from '../utils/Types';
 import { getVariant, server, copy, openInBrowser } from '../utils/utils'
-import LoadingSpiner from '../components/LoadingSpiner';
+import LoadingSpiner from './LoadingSpiner';
 import { AppContext } from '../App';
 import {
   List,
@@ -44,7 +44,7 @@ const MyGallery: React.ForwardRefExoticComponent<MyGalleryProps & React.RefAttri
       url: server + '/imageController/getUrlsByOwner',
       responseType: 'text',
       withCredentials: true,
-      data: JSON.stringify({ owner: userInfo.id })
+      data: JSON.stringify({ ownerName: userInfo.name })
     }).then((res) => {
       processUrlArr(JSON.parse(res.data))
     }).catch((err) => {

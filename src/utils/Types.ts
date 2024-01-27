@@ -28,7 +28,7 @@ export interface QARecord {
     platform: Platform,
     shelfLocation: string,
     amount: number,
-    owner: any,
+    owner?: any,
     marketplace?: Marketplace,
     ownerName?: string,
 }
