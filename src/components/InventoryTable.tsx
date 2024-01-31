@@ -16,9 +16,8 @@ import {
   Modal
 } from 'react-bootstrap'
 import { Switch } from "@tremor/react";
-import { getVariant, copy, openInBrowser } from '../utils/utils'
+import { getVariant, openInBrowser } from '../utils/utils'
 import PopupModal from './PopupModal'
-import { FaWarehouse } from 'react-icons/fa6'
 import axios from 'axios'
 
 type InvTableProps = {

@@ -1,19 +1,11 @@
 import React, { useContext, useEffect, useState, ForwardRefExoticComponent, forwardRef } from 'react'
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { Modal } from 'react-bootstrap'
 import axios from 'axios'
-import { QARecord } from '../utils/Types';
-import { getVariant, server, copy, openInBrowser } from '../utils/utils'
-import LoadingSpiner from './LoadingSpiner';
+import { server } from '../utils/utils'
 import { AppContext } from '../App';
 import {
-  List,
-  ListItem,
-  Badge,
-  Col,
   Card,
   Button,
-  Subtitle,
 } from '@tremor/react';
 import { RiRefreshLine } from "react-icons/ri"
 

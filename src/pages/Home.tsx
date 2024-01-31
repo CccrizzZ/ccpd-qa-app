@@ -1,4 +1,4 @@
-import { createContext, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { Condition, Marketplace, Platform, QARecord, UserInfo } from '../utils/Types';
 import { Clipboard } from '@capacitor/clipboard';
@@ -12,7 +12,6 @@ import {
 import { FaTrashCan } from 'react-icons/fa6'
 import './Home.css';
 import LoadingSpiner from '../components/LoadingSpiner';
-import moment from 'moment';
 
 const server = import.meta.env.VITE_APP_SERVER
 const defaultInfo = {
@@ -31,7 +30,6 @@ type HomeProp = {
 }
 
 const Home: React.FC<HomeProp> = (prop: HomeProp) => {
-
   const topRef = useRef<HTMLIonContentElement>(null)
   const [Sku, setSku] = useState<string>(defaultInfo.sku)
   const [itemCondition, setItemCondition] = useState<Condition>(defaultInfo.itemCondition as Condition)
@@ -130,8 +128,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
     // construct data
     const data: QARecord = {
       sku: Number(Sku),
-      // time: moment(new Date()).format('MMM DD YYYY HH:mm:ss'),
-      time: '', // let the server decide the time, mongodb sorting only recognize iso format
+      time: '',  // let server decide current time
       itemCondition: itemCondition,
       comment: comment ?? '',
       link: link,

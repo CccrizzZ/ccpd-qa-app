@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { Button, Form } from 'react-bootstrap';
-import { SHA256, enc } from 'crypto-js';
 import { User, UserInfo } from '../utils/Types';
 import { hashPassword, server } from '../utils/utils';
 import RegistrationModel from '../components/RegistrationModel';
-import { CapacitorHttp, HttpResponse } from '@capacitor/core';
 
 type LoginProp = {
   setLogin: React.Dispatch<React.SetStateAction<boolean>>,

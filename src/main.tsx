@@ -7,5 +7,4 @@ const root = createRoot(container!);
 root.render(
   // stric mode deleted because of double loading
   <App />
-
 );
