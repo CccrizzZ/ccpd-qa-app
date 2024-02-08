@@ -58,7 +58,9 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (prop: RegistrationMo
     setRegInfo({ ...regInfo, code: clip.value.replace(/(\r\n|\n|\r)/gm, "") })
   }
 
-  const onEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => setRegInfo({ ...regInfo, email: event.target.value })
+  const onEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRegInfo({ ...regInfo, email: event.target.value })
+  }
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => setRegInfo({ ...regInfo, name: event.target.value })
   const onPasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => setRegInfo({ ...regInfo, password: event.target.value })
   const onInviteCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => setRegInfo({ ...regInfo, code: event.target.value })
@@ -74,19 +76,47 @@ const RegistrationModel: React.FC<RegistrationModelProp> = (prop: RegistrationMo
         <Form>
           <Form.Group className="mb-3" controlId="loginForm.email">
             <Form.Label>Email address</Form.Label>
-            <Form.Control type="email" placeholder="Enter your email..." value={regInfo.email} onChange={onEmailChange} />
+            <Form.Control
+              type="email"
+              placeholder="Enter your email..."
+              value={regInfo.email}
+              onChange={onEmailChange}
+              maxLength={50}
+              minLength={12}
+            />
           </Form.Group>
           <Form.Group className="mb-3" controlId="loginForm.name">
             <Form.Label>User Name</Form.Label>
-            <Form.Control type="name" placeholder="Enter your name..." value={regInfo.name} onChange={onNameChange} />
+            <Form.Control
+              type="name"
+              placeholder="Enter your name..."
+              value={regInfo.name}
+              onChange={onNameChange}
+              maxLength={30}
+              minLength={6}
+            />
           </Form.Group>
           <Form.Group className="mb-3" controlId="loginForm.password">
             <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Enter password..." value={regInfo.password} onChange={onPasswordChange} />
+            <Form.Control
+              type="password"
+              placeholder="Enter character password..."
+              value={regInfo.password}
+              onChange={onPasswordChange}
+              maxLength={32}
+              minLength={8}
+            />
           </Form.Group>
           <Form.Group className="mb-3" controlId="loginForm.invitationCode">
             <Form.Label>Invitation Code</Form.Label>
-            <Form.Control type="name" placeholder="Enter invitation code..." value={regInfo.code} onChange={onInviteCodeChange} />
+            <Form.Control
+              type="name"
+              placeholder="Enter invitation code..."
+              value={regInfo.code}
+              onChange={onInviteCodeChange}
+              maxLength={40}
+              minLength={8}
+            />
             <Button className='mt-3' onClick={pasteInviteCode}>Paste</Button>
           </Form.Group>
         </Form>

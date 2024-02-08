@@ -8,6 +8,15 @@ export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
 
 // server address
 export const server = import.meta.env.VITE_APP_SERVER
+// extract link from string
+export const extractHttpsFromStr = (str: string) => {
+  const res = String(str.match(/\bhttps?:\/\/\S+/gi))
+  if (res !== 'null') {
+    return res
+  } else {
+    return str.slice(str.indexOf('https'))
+  }
+}
 
 // copy to device native clipboard
 export const copy = async (txt: string): Promise<void> => {

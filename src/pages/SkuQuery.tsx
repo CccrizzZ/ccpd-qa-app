@@ -11,7 +11,7 @@ import {
 } from 'react-bootstrap'
 import axios from 'axios'
 import { QARecord } from '../utils/Types';
-import { getVariant, server, copy, openInBrowser } from '../utils/utils'
+import { getVariant, server, copy, openInBrowser, extractHttpsFromStr } from '../utils/utils'
 import LoadingSpiner from '../components/LoadingSpiner';
 
 const SkuQuery: React.FC = () => {
@@ -61,7 +61,7 @@ const SkuQuery: React.FC = () => {
   const handleSkuChange = (event: React.ChangeEvent<HTMLInputElement>) => setSku(String(event.target.value))
 
   // copylink to clipboard
-  const copyLink = async () => await copy(inventoryRecord.link)
+  const copyLink = async () => await copy(extractHttpsFromStr(inventoryRecord.link))
 
   // render the result below
   const renderResultCard = (inventory: QARecord) => {
@@ -119,7 +119,7 @@ const SkuQuery: React.FC = () => {
                     <p>Link:</p>
                     <Button variant="success" onClick={copyLink}>Copy</Button>
                   </Col>
-                  <Col><a onClick={() => openInBrowser(inventory.link)} style={{ fontStretch: 'condensed' }}>{inventory.link}</a></Col>
+                  <Col><a onClick={() => openInBrowser(extractHttpsFromStr(inventory.link))} style={{ fontStretch: 'condensed' }}>{inventory.link}</a></Col>
                 </Row>
               </ListGroup.Item>
             </ListGroup>
