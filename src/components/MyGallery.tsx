@@ -77,6 +77,7 @@ const MyGallery: React.ForwardRefExoticComponent<MyGalleryProps & React.RefAttri
 
   // url into array with key of sku
   const processUrlArr = (arr: string[]) => {
+    if (!arr.forEach) return
     arr.forEach((url) => {
       // wtf copilot
       const sku = new URL(url).pathname.split('/')[new URL(url).pathname.split('/').length - 2]

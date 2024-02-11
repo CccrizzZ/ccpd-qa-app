@@ -1,4 +1,12 @@
 /* for chart legend */
-ol>li>p {
+li > p {
     margin-bottom: 0;
+}
+
+.recharts-tooltip-wrapper {
+    z-index: 1001;
+}
+
+.recharts-tooltip-wrapper p {
+    margin: 0;
 }

@@ -1,12 +1,13 @@
 import './MyInventory.css'
-import axios from 'axios'
+import axios, { Axios, AxiosError } from 'axios'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
 import { useEffect, useState } from 'react'
 import {
   DonutChart,
   Legend,
   Card,
-  Subtitle
+  Subtitle,
+  Grid
 } from "@tremor/react"
 import {
   Button,
@@ -35,6 +36,13 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [page, setPage] = useState<number>(0)
   const [chartData, setChartData] = useState<ChartData[]>([])
+  const chartColors = [
+    "green",
+    "violet",
+    "sky",
+    "rose",
+    "orange"
+  ]
 
   // refresh user inventory array on construct
   useEffect(() => {
@@ -55,22 +63,21 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
     // fetch page 0 from server (sku desc)
     await axios({
       method: 'post',
-      url: server + `/inventoryController/getInventoryByOwnerId/${startPage}`,
+      url: server + `/inventoryController/getInventoryByOwnerName`,
       withCredentials: true,
       responseType: 'text',
-      data: JSON.stringify({ 'id': String(prop.userInfo.id) })
+      timeout: 8000,
+      data: JSON.stringify({ 'ownerName': prop.userInfo.name, 'page': page })
     }).then((res): void => {
       const invArr = JSON.parse(res.data)
-      // if no inventory clear the inventory array
       if (invArr.length < 1) {
         setUserInventoryArr([])
       } else {
         setUserInventoryArr(invArr)
       }
-    }).catch((err) => {
+    }).catch((err: AxiosError) => {
       setIsLoading(false)
-      alert('Cannot Load User Inventory')
-      throw err
+      alert('Cannot Load User Inventory: ' + err.message)
     })
     setIsLoading(false)
   }
@@ -78,24 +85,22 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
   // fetch the next page increment the page
   const loadNextPage = async () => {
     const nextPage = page + 1
-    // grab next page and put it into user inventory array
     await axios({
       method: 'post',
-      url: server + `/inventoryController/getInventoryByOwnerId/${nextPage}`,
+      url: server + `/inventoryController/getInventoryByOwnerName`,
       withCredentials: true,
       responseType: 'text',
-      data: JSON.stringify({ 'id': String(prop.userInfo.id) })
+      timeout: 8000,
+      data: JSON.stringify({ 'ownerName': prop.userInfo.name, 'page': nextPage })
     }).then((res): void => {
-      // parse inventory json data
       const invArr = JSON.parse(res.data)
       // if there is something in next page, increment page, else do nothing
       if (invArr.length > 0) {
         setUserInventoryArr(userInventoryArr.concat(invArr))
         setPage(nextPage)
       }
-    }).catch((err) => {
-      alert('Cannot Load User Inventory')
-      throw err
+    }).catch((err: AxiosError) => {
+      alert('Cannot Load User Inventory ' + err.message)
     })
   }
 
@@ -119,16 +124,15 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
   const fetchUserInvInfo = async () => {
     await axios({
       method: 'post',
-      url: server + '/inventoryController/getInventoryInfoByOwnerId',
+      url: server + '/inventoryController/getQAConditionInfoByOwnerName',
       withCredentials: true,
       responseType: 'text',
-      data: JSON.stringify({ 'id': String(prop.userInfo.id) })
+      timeout: 8000,
+      data: JSON.stringify({ 'ownerName': prop.userInfo.name })
     }).then((res): void => {
-      const invInfoArr = JSON.parse(res.data)
-      setChartData(convertChartData(invInfoArr))
-    }).catch((err) => {
-      alert('Cannot Load User Inventory Info')
-      throw err
+      setChartData(convertChartData(JSON.parse(res.data)))
+    }).catch((err: AxiosError) => {
+      console.log('Cannot Load User Inventory Info: ' + err.message)
     })
   }
 
@@ -144,20 +148,26 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
             <Button className='mt-3' variant="dark" onClick={logout} style={{ margin: 'auto' }}><RiLogoutBoxRLine /></Button>
           </Col>
         </Row>
-        <Card decoration="top" decorationColor="amber" style={{ padding: 0 }}>
-          <DonutChart
-            className="mt-4"
-            data={chartData}
-            category="amount"
-            index="name"
-            valueFormatter={valueFormatter}
-            colors={["green", "violet", "sky", "rose", "slate", "orange"]}
-          />
-          <Legend
-            className="mt-3"
-            categories={["New", "Used", "Used Like New", "Sealed", "Damaged", "As Is"]}
-            colors={["green", "violet", "sky", "rose", "slate", "orange"]}
-          />
+        <Card className='mb-6' decoration="top" decorationColor="amber" style={{ padding: 0 }}>
+          <Grid numItems={2}>
+            <Col>
+              <DonutChart
+                className="ml-4 mt-9 mb-9"
+                data={chartData}
+                category="amount"
+                index="name"
+                valueFormatter={valueFormatter}
+                colors={chartColors}
+              />
+            </Col>
+            <Col>
+              <Legend
+                className="p-9 text-center mt-3 block max-w-36"
+                categories={["New", "Used", "Used Like New", "Sealed", "As Is"]}
+                colors={chartColors}
+              />
+            </Col>
+          </Grid>
         </Card>
         <Button className='gap-2 mb-4' variant="primary" onClick={() => refreshUserInventoryArr()}><RiRefreshLine /></Button>
         <InventoryTable inventoryArr={userInventoryArr} refresh={() => refreshUserInventoryArr()} setLoading={setIsLoading} />

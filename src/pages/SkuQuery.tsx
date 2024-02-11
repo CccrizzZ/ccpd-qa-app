@@ -146,7 +146,7 @@ const SkuQuery: React.FC = () => {
     <IonPage>
       <LoadingSpiner show={isLoading} />
       <IonHeader>
-        <IonToolbar style={{ display: 'flex' }}>
+        <IonToolbar className='flex'>
           <IonTitle>👁️ SKU Query</IonTitle>
         </IonToolbar>
       </IonHeader>

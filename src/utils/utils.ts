@@ -28,7 +28,7 @@ export const copy = async (txt: string): Promise<void> => {
 // capacitor open in device default browser 
 export const openInBrowser = async (link: string) => {
   await Browser.open({
-    url: link
+    url: extractHttpsFromStr(link)
   })
 }
 
@@ -49,7 +49,7 @@ export const getVariant = (condition: string) => {
     case 'Used Like New':
       return 'secondary'
     case 'Used':
-      return 'secondary'
+      return 'warning'
     case 'Damaged':
       return 'danger'
     case 'As Is':
@@ -121,11 +121,11 @@ export const getChartData = (inventoryArr: QARecord[]) => {
 
 // object type from server
 export type InvInfo = {
-  "Used": number,
-  "As Is": number,
   "New": number,
+  "Used": number,
   "Used Like New": number,
   "Sealed": number
+  "As Is": number,
 }
 
 // tremor chart data
@@ -146,16 +146,16 @@ export const convertChartData = (info: InvInfo) => {
       amount: info['Used']
     },
     {
-      name: 'As Is',
-      amount: info['As Is']
-    },
-    {
       name: 'Used Like New',
       amount: info['Used Like New']
     },
     {
       name: 'Sealed',
       amount: info['Sealed']
+    },
+    {
+      name: 'As Is',
+      amount: info['As Is']
     },
   ]
 }

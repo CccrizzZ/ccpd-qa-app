@@ -76,10 +76,11 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
         prop.setLogin(true)
         prop.setUserInfo(JSON.parse(res.data))
       }
+      prop.setLoading(false)
     }).catch((err) => {
+      prop.setLoading(false)
       alert('Login Error: ' + err.response.data)
     })
-    prop.setLoading(false)
   }
 
   return (
