@@ -12,6 +12,7 @@ import {
 import { FaTrashCan } from 'react-icons/fa6'
 import './Home.css';
 import LoadingSpiner from '../components/LoadingSpiner';
+import { renderConditionOptions } from '../utils/utils';
 
 const server = import.meta.env.VITE_APP_SERVER
 const defaultInfo = {
@@ -184,12 +185,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
           <Form.Group id='formgroup'>
             <Form.Label>Item Condition</Form.Label>
             <Form.Select value={itemCondition} aria-label="Item Condition" onChange={handleItemConditionChange}>
-              <option value="New">New</option>
-              <option value="Sealed">Sealed</option>
-              <option value="Used">Used</option>
-              <option value="Used Like New">Used Like New</option>
-              <option value="Damaged">Damaged</option>
-              <option value="As Is">As Is</option>
+              {renderConditionOptions()}
             </Form.Select>
           </Form.Group>
           <hr color='white' />

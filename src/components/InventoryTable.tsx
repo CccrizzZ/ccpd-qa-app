@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Condition, Marketplace, Platform, QARecord } from '../utils/Types'
-import { server } from '../utils/utils'
+import { renderConditionOptions, server } from '../utils/utils'
 import {
   Button,
   ButtonGroup,
@@ -204,7 +204,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
   }
 
   // update form wont pickup selected inventory information if placed in child component
-  const renderUpdateForm = () => {
+  const renderUpdateModal = () => {
     return (
       <Modal style={{ color: '#adb5bd', width: '90%', margin: 'auto' }} show={showEditForm} size="lg" centered>
         <Modal.Header className='bg-dark'>
@@ -213,7 +213,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className='bg-dark' data-bs-theme="dark">
-          <InputGroup className="mb-3" >
+          <InputGroup className="mb-3">
             <InputGroup.Text id="Amount">Amount</InputGroup.Text>
             <Form.Control
               onChange={handleAmountChange}
@@ -223,14 +223,12 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
               value={record4Edit.amount}
             />
           </InputGroup>
-          <Form.Select className="mb-3" value={record4Edit.itemCondition} aria-label="Item Condition" onChange={handleItemConditionChange}>
-            <option value="New">New</option>
-            <option value="Sealed">Sealed</option>
-            <option value="Used">Used</option>
-            <option value="Used Like New">Used Like New</option>
-            <option value="Damaged">Damaged</option>
-            <option value="As Is">As Is</option>
-          </Form.Select>
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="Condition">Condition</InputGroup.Text>
+            <Form.Select value={record4Edit.itemCondition} aria-label="Item Condition" onChange={handleItemConditionChange}>
+              {renderConditionOptions()}
+            </Form.Select>
+          </InputGroup>
           <InputGroup className="mb-3">
             <InputGroup.Text id="Platform">Platform</InputGroup.Text>
             <Form.Select value={record4Edit.platform} aria-label="Item Condition" onChange={handlePlatformChange}>
@@ -305,7 +303,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
         cancelAction={() => setShowDeleteConfirmModal(false)}
       />
       <div style={{ textAlign: 'center' }}>
-        {renderUpdateForm()}
+        {renderUpdateModal()}
       </div>
       <div style={{ display: 'flex', backgroundColor: '#252525', borderRadius: '1em', padding: '15px' }}>
         <ButtonGroup>

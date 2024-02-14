@@ -159,3 +159,16 @@ export const convertChartData = (info: InvInfo) => {
     },
   ]
 }
+
+export const renderConditionOptions = () => {
+  return (
+    <>
+      <option value="New">New</option>
+      <option value="Sealed">Sealed</option>
+      <option value="Used">Used</option>
+      <option value="Used Like New">Used Like New</option>
+      <option value="Damaged">Damaged</option>
+      <option value="As Is">As Is</option>
+    </>
+  )
+}

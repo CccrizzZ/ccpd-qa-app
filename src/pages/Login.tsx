@@ -33,7 +33,7 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
         prop.setUserInfo(JSON.parse(res.data))
       }
     }).catch(() => {
-      console.log('please login')
+      console.log('jwt token not found, please login')
     })
     prop.setLoading(false)
   }
