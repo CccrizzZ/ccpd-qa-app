@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { Button, Form } from 'react-bootstrap';
 import { User, UserInfo } from '../utils/Types';
 import { hashPassword, server } from '../utils/utils';
 import RegistrationModel from '../components/RegistrationModel';
+
 
 type LoginProp = {
   setLogin: React.Dispatch<React.SetStateAction<boolean>>,
@@ -27,13 +28,13 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       data: '',
       timeout: 3000,
       withCredentials: true,
-    }).then((res) => {
+    }).then((res: AxiosResponse) => {
       if (res.status === 200) {
         prop.setLogin(true)
         prop.setUserInfo(JSON.parse(res.data))
       }
-    }).catch(() => {
-      console.log('jwt token not found, please login')
+    }).catch((err: AxiosResponse) => {
+      console.log(`${err.status} jwt token not found, please login`)
     })
     prop.setLoading(false)
   }
@@ -64,23 +65,29 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
 
     // send request
     prop.setLoading(true)
-    await axios({
-      method: 'post',
-      url: server + '/userController/login',
-      responseType: 'text',
-      data: JSON.stringify(userLoginInfo),
-      withCredentials: true,
-      timeout: 3000
-    }).then((res) => {
-      if (res.status === 200) {
-        prop.setLogin(true)
-        prop.setUserInfo(JSON.parse(res.data))
-      }
-      prop.setLoading(false)
-    }).catch((err) => {
-      prop.setLoading(false)
-      alert('Login Error: ' + err.response.data)
-    })
+    try {
+      await axios({
+        method: 'post',
+        url: server + '/userController/login',
+        responseType: 'text',
+        headers: { 'Content-Type': 'application/json' },
+        data: JSON.stringify(userLoginInfo),
+        withCredentials: true,
+        timeout: 3000
+      }).then((res) => {
+        if (res.status === 200) {
+          prop.setLogin(true)
+          prop.setUserInfo(JSON.parse(res.data))
+        }
+        prop.setLoading(false)
+      }).catch((err) => {
+        alert('Login Error: ' + err.response.data)
+      })
+    } catch (error) {
+      console.log('error')
+      console.log(error)
+    }
+    prop.setLoading(false)
   }
 
   return (
@@ -92,6 +99,7 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       </IonHeader>
       <IonContent class="ion-padding">
         <RegistrationModel show={showReg} cancelAction={() => setShowReg(false)} />
+        <h2>{import.meta.env.VITE_APP_SERVER}</h2>
         <Form>
           <Form.Group className="mb-3" controlId="loginForm.unameInput1">
             <Form.Label>Email address</Form.Label>
