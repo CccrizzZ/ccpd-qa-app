@@ -151,13 +151,12 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
       withCredentials: true
     }).then((res) => {
       alert('Upload Success')
-      setIsLoading(false)
     }).catch((err) => {
       alert('Upload Failed: ' + err.response.data)
       setIsLoading(false)
       throw err
     })
-
+    setIsLoading(false)
     // reset form
     resetForm()
   }
@@ -196,7 +195,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
                 <FaTrashCan />
               </Button>
             </Form.Label>
-            <Form.Control type="text" as="textarea" style={{ resize: 'none' }} value={comment} onChange={handleCommentChange} />
+            <Form.Control type="text" as="textarea" className='resize-none' value={comment} onChange={handleCommentChange} />
           </Form.Group>
           <ButtonGroup size='sm' className="mb-2">
             <Button onClick={appendToComment('All Parts In')} variant="success">All Parts In</Button>
@@ -208,18 +207,25 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
             <Button onClick={appendToComment('Missing Accessory')} variant="danger">Missing Accessories</Button>
             <Button onClick={appendToComment('Missing Main Parts')} variant="danger">Missing Main Parts</Button>
             <Button onClick={appendToComment('Untested')} variant="secondary">Untested</Button>
-            <Button onClick={appendToComment('Item Different From Link')} variant="secondary"> Item Different From Link</Button>
+            <Button onClick={appendToComment('Item Different From Link')} variant="secondary">Item Different From Link</Button>
+          </ButtonGroup>
+          <ButtonGroup size='sm' className="mb-2">
+            <Button onClick={appendToComment('Missing Screws')} variant="danger">Missing Screws</Button>
+            <Button onClick={appendToComment('Minor Scratch')} variant="danger">Minor Scratch</Button>
+            <Button onClick={appendToComment('Same')} variant="secondary">Same</Button>
+            <Button onClick={appendToComment('Similar Items')} variant="secondary">Similar Items</Button>
           </ButtonGroup>
           <hr color='white' />
           <Form.Group id='formgroup'>
             <Form.Label style={{ padding: '10px' }}>
               Link
-              <Button variant='danger' style={{ right: '30px', position: 'absolute' }} onClick={clearLink}>
+              <Button variant='danger' className='absolute right-[30px]' onClick={clearLink}>
                 <FaTrashCan />
               </Button>
+              <Button className='absolute right-[100px]' onClick={() => setLink('No Link')} variant='secondary'>No Link</Button>
             </Form.Label>
-            <Form.Control className="mb-3" type="text" as='textarea' style={{ resize: 'none' }} rows={3} value={link} onChange={handleLinkChange} />
-            <div className="d-grid">
+            <Form.Control className="mb-3 resize-none mt-3" type="text" as='textarea' rows={3} value={link} onChange={handleLinkChange} />
+            <div className="d-grid gap-2">
               <Button onClick={pasteLink}>Paste</Button>
             </div>
           </Form.Group>
@@ -229,6 +235,10 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
             <Form.Select className="mb-3" value={platform} aria-label="Item Condition" onChange={handlePlatformChange}>
               <option value="Amazon">Amazon</option>
               <option value="eBay">eBay</option>
+              <option value="AliExpress">AliExpress</option>
+              <option value="HomeDepot">HomeDepot</option>
+              <option value="Walmart">Walmart</option>
+              <option value="BestBuy">BestBuy</option>
               <option value="Official Website">Official Website</option>
               <option value="Other">Other</option>
             </Form.Select>
@@ -239,6 +249,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
               <option value="Hibid">Hibid</option>
               <option value="Retail">Retail</option>
               <option value="eBay">eBay</option>
+              <option value="Kijiji">Kijiji</option>
               <option value="Wholesale">Wholesale</option>
               <option value="Other">Other</option>
             </Form.Select>

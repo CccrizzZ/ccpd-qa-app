@@ -206,7 +206,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
   // update form wont pickup selected inventory information if placed in child component
   const renderUpdateModal = () => {
     return (
-      <Modal style={{ color: '#adb5bd', width: '90%', margin: 'auto' }} show={showEditForm} size="lg" centered>
+      <Modal className='m-auto' style={{ color: '#adb5bd', width: '90%' }} show={showEditForm} size="lg" centered>
         <Modal.Header className='bg-dark'>
           <Modal.Title id="contained-modal-title-vcenter">
             Edit {record4Edit.sku}
@@ -294,7 +294,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
   }
 
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div className='text-center'>
       <PopupModal
         title={`Delete ${sku4Delete}?`}
         content="Record Will Be Permanently Deleted!"
@@ -302,19 +302,19 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
         confirmAction={() => deleteInventory(sku4Delete)}
         cancelAction={() => setShowDeleteConfirmModal(false)}
       />
-      <div style={{ textAlign: 'center' }}>
+      <div className='text-center'>
         {renderUpdateModal()}
       </div>
-      <div style={{ display: 'flex', backgroundColor: '#252525', borderRadius: '1em', padding: '15px' }}>
-        <ButtonGroup>
+      <div className='flex bg-[#252525] p-15 min-h-16 rounded-2xl'>
+        {/* <ButtonGroup>
           <DropdownButton as={ButtonGroup} title="Sort By" id="bg-nested-dropdown">
             <Dropdown.Item eventKey="1">SKU</Dropdown.Item>
             <Dropdown.Item eventKey="2">Time</Dropdown.Item>
           </DropdownButton>
-        </ButtonGroup>
-        <div className="mr-4" style={{ right: '30px', position: 'absolute' }}>
-          <Switch className="ml-4" name="switch" checked={editMode} onChange={toggleEditMode} />
-          <label className="text-sm text-gray-500">Edit Mode</label>
+        </ButtonGroup> */}
+        <div className='right-10 absolute mt-2'>
+          <Switch className='ml-4' name='switch' checked={editMode} onChange={toggleEditMode} />
+          <label className='text-sm text-gray-500'>Edit Mode</label>
         </div>
       </div>
       {renderTable()}

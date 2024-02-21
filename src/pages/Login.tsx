@@ -99,7 +99,6 @@ const Login: React.FC<LoginProp> = (prop: LoginProp) => {
       </IonHeader>
       <IonContent class="ion-padding">
         <RegistrationModel show={showReg} cancelAction={() => setShowReg(false)} />
-        <h2>{import.meta.env.VITE_APP_SERVER}</h2>
         <Form>
           <Form.Group className="mb-3" controlId="loginForm.unameInput1">
             <Form.Label>Email address</Form.Label>
