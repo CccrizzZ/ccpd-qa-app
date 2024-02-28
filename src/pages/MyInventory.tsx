@@ -1,5 +1,5 @@
 import './MyInventory.css'
-import axios, { Axios, AxiosError } from 'axios'
+import axios, { Axios, AxiosError, AxiosResponse } from 'axios'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
 import { useEffect, useState } from 'react'
 import {
@@ -12,13 +12,17 @@ import {
 import {
   Button,
   Row,
-  Col
+  Col,
+  Table,
+  Form
 } from 'react-bootstrap'
 import { QARecord, UserInfo, PieData } from '../utils/Types'
 import InventoryTable from '../components/InventoryTable'
 import { RiRefreshLine, RiLogoutBoxRLine } from "react-icons/ri"
 import { server, convertChartData, ChartData } from '../utils/utils'
 import LoadingSpiner from '../components/LoadingSpiner'
+import PopupModal from '../components/PopupModal'
+import moment from 'moment'
 
 // chart formatter
 const valueFormatter = (number: number) => `${new Intl.NumberFormat("us").format(number).toString()} Items`;
@@ -30,12 +34,21 @@ type MyInvProps = {
   setIsLogin: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
+type QAItemShelfData = {
+  time: string,
+  sku: number,
+  amount: number,
+  shelfLocation: string,
+  ownerName: string
+}
+
 // Personal profile and dashboard
 const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
   const [userInventoryArr, setUserInventoryArr] = useState<QARecord[]>([]) // array of user owned inventory
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [page, setPage] = useState<number>(0)
   const [chartData, setChartData] = useState<ChartData[]>([])
+  const [showTable, setShowTable] = useState<boolean>(false)
   const chartColors = [
     "green",
     "violet",
@@ -43,10 +56,12 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
     "rose",
     "orange"
   ]
+  const [qaDataToday, setQaDataToday] = useState<QAItemShelfData[]>([])
 
   // refresh user inventory array on construct
   useEffect(() => {
     refreshUserInventoryArr()
+    fetchTodayQAInfo()
   }, [])
 
   // refresh and reset inventory array
@@ -80,6 +95,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
       alert('Cannot Load User Inventory: ' + err.message)
     })
     setIsLoading(false)
+    fetchTodayQAInfo()
   }
 
   // fetch the next page increment the page
@@ -129,23 +145,92 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
       responseType: 'text',
       timeout: 8000,
       data: JSON.stringify({ 'ownerName': prop.userInfo.name })
-    }).then((res): void => {
+    }).then((res: AxiosResponse) => {
       setChartData(convertChartData(JSON.parse(res.data)))
     }).catch((err: AxiosError) => {
-      console.log('Cannot Load User Inventory Info: ' + err.message)
+      alert('Cannot Load User Inventory Info: ' + err.message)
     })
+  }
+
+  const fetchTodayQAInfo = async () => {
+    await axios({
+      method: 'post',
+      url: server + '/inventoryController/getShelfSheetByUser',
+      withCredentials: true,
+      responseType: 'text',
+      timeout: 8000,
+      data: JSON.stringify({ 'ownerName': prop.userInfo.name })
+    }).then((res: AxiosResponse) => {
+      setQaDataToday(JSON.parse(res.data))
+    }).catch((err: AxiosError) => {
+      alert('Cannot Load User Inventory Info: ' + err.message)
+    })
+  }
+
+  const renderTable = () => {
+    const renderTB = () => {
+      if (qaDataToday.map) {
+        return qaDataToday.map((val, i) => (
+          <tr key={i}>
+            {/* <td>{moment(val.time).toLocaleString()}</td> */}
+            <td>{val.sku}</td>
+            <td>{val.shelfLocation}</td>
+            <td>{val.amount}</td>
+            <td className='w-[140px]'>{val.ownerName}</td>
+            <td>
+              <Form.Check
+                type='checkbox'
+              // className='absolute'
+              />
+            </td>
+          </tr>
+        ))
+      }
+    }
+
+    return (
+      <Table striped bordered variant='dark'>
+        <thead>
+          <tr>
+            {/* <th>Time</th> */}
+            <th>SKU</th>
+            <th>Shelf Location</th>
+            <th>Amt</th>
+            <th>Owner</th>
+            <th>In</th>
+          </tr>
+        </thead>
+        <tbody>
+          {renderTB()}
+        </tbody>
+      </Table>
+    )
+  }
+
+  const displayTable = () => {
+    setShowTable(true)
   }
 
   const renderUserPage = () => {
     return (
       <div>
+        <PopupModal
+          title={`Q&A Shelf Sheet ${moment().format('LL')} `}
+          content={undefined}
+          dom={renderTable()}
+          show={showTable}
+          confirmAction={() => setShowTable(false)}
+          cancelAction={() => setShowTable(false)}
+          showConfirmButton={false}
+          showCloseButton={true}
+        />
         <Row>
           <Col>
             <h2>{prop.userInfo.name}</h2>
             <Subtitle>{prop.userInfo.id}</Subtitle>
           </Col>
           <Col style={{ textAlign: 'right' }}>
-            <Button className='mt-3' variant="dark" onClick={logout} style={{ margin: 'auto' }}><RiLogoutBoxRLine /></Button>
+            <Button className='mt-3 m-auto' variant="dark" onClick={logout}><RiLogoutBoxRLine /></Button>
           </Col>
         </Row>
         <Card className='mb-6' decoration="top" decorationColor="amber" style={{ padding: 0 }}>
@@ -170,6 +255,7 @@ const MyInventory: React.FC<MyInvProps> = (prop: MyInvProps) => {
           </Grid>
         </Card>
         <Button className='gap-2 mb-4' variant="primary" onClick={() => refreshUserInventoryArr()}><RiRefreshLine /></Button>
+        <Button className='absolute mb-4 right-6' variant="success" onClick={displayTable}>Get Shelf Sheet (Today)</Button>
         <InventoryTable inventoryArr={userInventoryArr} refresh={() => refreshUserInventoryArr()} setLoading={setIsLoading} />
         <div className="d-grid gap-2 mt-3">
           <Button variant='success' onClick={loadNextPage}>Load More...</Button>

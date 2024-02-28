@@ -301,6 +301,8 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
         show={showDeleteConfirmModal}
         confirmAction={() => deleteInventory(sku4Delete)}
         cancelAction={() => setShowDeleteConfirmModal(false)}
+        showCloseButton={true}
+        showConfirmButton={true}
       />
       <div className='text-center'>
         {renderUpdateModal()}

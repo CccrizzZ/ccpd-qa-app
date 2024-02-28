@@ -75,25 +75,34 @@ const App: React.FC = () => {
           <IonReactRouter>
             <IonTabs>
               <IonRouterOutlet>
-                <Route exact path="/Home">
-                  <Home userInfo={userInfo} />
-                </Route>
-                <Route exact path="/MyInventory">
-                  <MyInventory
-                    userInfo={userInfo}
-                    isLogin={isLogin}
-                    setIsLogin={setIsLogin}
-                  />
-                </Route>
-                <Route exact path="/ImageUploader">
-                  <ImageUploader userInfo={userInfo} />
-                </Route>
-                <Route exact path="/SkuQuery">
-                  <SkuQuery />
-                </Route>
-                <Route exact path="/">
-                  <Redirect to="/Home" />
-                </Route>
+                <Route
+                  exact
+                  path="/Home"
+                  render={() => <Home userInfo={userInfo} />}
+                />
+                {/* <Home userInfo={userInfo} /> */}
+                <Route
+                  exact
+                  path="/MyInventory"
+                  render={
+                    () => <MyInventory
+                      userInfo={userInfo}
+                      isLogin={isLogin}
+                      setIsLogin={setIsLogin}
+                    />
+                  }
+                />
+                <Route
+                  exact
+                  path="/ImageUploader"
+                  render={() => <ImageUploader userInfo={userInfo} />}
+                />
+                <Route exact path="/SkuQuery" render={() => <SkuQuery />} />
+                {/* <SkuQuery /> */}
+                {/* </Route> */}
+                <Route exact path="/" render={() => <Redirect to="/Home" />} />
+                {/* <Redirect to="/Home" /> */}
+                {/* </Route> */}
               </IonRouterOutlet>
               <IonTabBar slot="bottom">
                 <IonTabButton tab="Home" href="/Home">

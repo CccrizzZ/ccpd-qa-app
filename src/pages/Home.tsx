@@ -3,13 +3,21 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/rea
 import { Condition, Marketplace, Platform, QARecord, UserInfo } from '../utils/Types';
 import { Clipboard } from '@capacitor/clipboard';
 import { NumberInput } from "@tremor/react";
-import axios from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import {
   Form,
   Button,
   ButtonGroup,
+  Dropdown,
+  DropdownButton,
+  ListGroup,
+  Row,
+  Col,
 } from 'react-bootstrap';
-import { FaTrashCan } from 'react-icons/fa6'
+import {
+  FaTrashCan,
+  FaX
+} from 'react-icons/fa6'
 import './Home.css';
 import LoadingSpiner from '../components/LoadingSpiner';
 import { renderConditionOptions } from '../utils/utils';
@@ -32,7 +40,7 @@ type HomeProp = {
 
 const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   const topRef = useRef<HTMLIonContentElement>(null)
-  const [Sku, setSku] = useState<string>(defaultInfo.sku)
+  const [sku, setSku] = useState<string>(defaultInfo.sku)
   const [itemCondition, setItemCondition] = useState<Condition>(defaultInfo.itemCondition as Condition)
   const [comment, setComment] = useState<string>(defaultInfo.comment)
   const [link, setLink] = useState<string>(defaultInfo.link)
@@ -40,6 +48,8 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
   const [shelfLocation, setShelfLocation] = useState<string>(defaultInfo.shelfLocation)
   const [amount, setAmount] = useState<number>(defaultInfo.amount)
   const [marketplace, setMarketplace] = useState<Marketplace>(defaultInfo.marketplace as Marketplace)
+  const [fileFormData, setFileFormData] = useState<FormData>(new FormData())
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
 
   // loading flag
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -114,21 +124,22 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
     setShelfLocation(defaultInfo.shelfLocation)
     setAmount(defaultInfo.amount)
     setMarketplace(defaultInfo.marketplace as Marketplace)
-
+    setFileFormData(new FormData())
+    setSelectedFiles([])
     // automatically increment the sku for next form
-    if (Sku) setSku(String(Number(Sku) + 1))
+    if (sku) setSku(String(Number(sku) + 1))
   }
 
   // submit button onclick
   const handleSubmit = async () => {
     // null checks
-    if (!Sku) return alert('SKU Missing!')
+    if (!sku) return alert('SKU Missing!')
     if (!link) return alert('Link Missing!')
     if (!shelfLocation) return alert('Shelf Location Missing!')
 
     // construct data
     const data: QARecord = {
-      sku: Number(Sku),
+      sku: Number(sku),
       time: '',  // let server decide current time
       itemCondition: itemCondition,
       comment: comment ?? '',
@@ -141,24 +152,78 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
       marketplace: marketplace
     }
 
+    // append files to form data from selected file array
+    for (const file of selectedFiles) {
+      fileFormData.append(file.name, file)
+    }
+
     setIsLoading(true)
-    // send to mongo db
+    // send record
     await axios({
       method: 'put',
       url: `${server}/inventoryController/createInventory`,
       responseType: 'text',
       data: JSON.stringify(data),
       withCredentials: true
-    }).then((res) => {
-      alert('Upload Success')
-    }).catch((err) => {
-      alert('Upload Failed: ' + err.response.data)
+    }).then(async (res) => {
+      // send photos
+      if (selectedFiles.length > 0 && res.status <= 200) {
+        await axios({
+          method: 'post',
+          url: `${server}/imageController/uploadImage/${prop.userInfo.id}/${prop.userInfo.name}/${sku}`,
+          responseType: 'text',
+          withCredentials: true,
+          headers: { 'Content-Type': 'multipart/form-data' },
+          data: fileFormData
+        }).then((res) => {
+          if (res.status === 200) {
+            alert('Upload Success')
+            resetForm()
+          }
+        }).catch((err) => {
+          alert(`Failed to Upload:  ${err.response.statusText}`)
+          setIsLoading(false)
+        })
+      }
+    }).catch((err: AxiosError) => {
+      alert('Upload Failed: ' + err.message)
       setIsLoading(false)
-      throw err
     })
     setIsLoading(false)
-    // reset form
-    resetForm()
+  }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length < 1) return
+    setSelectedFiles([])
+    for (const file of event.target.files) {
+      setSelectedFiles((prevFiles) => [...prevFiles, file])
+    }
+  }
+
+  const removeSelectedPhoto = (file: File) => {
+    const newArr = selectedFiles.filter((val) => val !== file)
+    setSelectedFiles(newArr)
+  }
+
+  const renderSelectedPhotos = () => {
+    if (selectedFiles.length < 1) {
+      return <small style={{ margin: 'auto' }}>Please Select Files</small>
+    }
+    return (
+      <>
+        {selectedFiles.map((file, index) => {
+          const url = URL.createObjectURL(file)
+          return (
+            <div key={index}>
+              <img src={url} width="120px" />
+              <Button variant='secondary' size='sm' onClick={() => removeSelectedPhoto(file)}>
+                <FaX />
+              </Button>
+            </div>
+          )
+        })}
+      </>
+    )
   }
 
   return (
@@ -176,7 +241,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
             <Form.Control
               style={{ color: '#FFA500', fontWeight: 'bold', fontSize: '140%' }}
               type="number"
-              value={Sku}
+              value={sku}
               onChange={handleSkuChange}
             />
           </Form.Group>
@@ -191,30 +256,64 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
           <Form.Group id='formgroup'>
             <Form.Label style={{ padding: '10px' }}>
               Comment
-              <Button variant='danger' style={{ right: '30px', position: 'absolute' }} onClick={clearComment}>
+              <Button size='sm' className="absolute right-24" onClick={appendToComment('Scanned')}>Scanned by ASIN</Button>
+              <Button variant='danger' className='absolute right-6' onClick={clearComment}>
                 <FaTrashCan />
               </Button>
             </Form.Label>
-            <Form.Control type="text" as="textarea" className='resize-none' value={comment} onChange={handleCommentChange} />
+            <Form.Control
+              type="text"
+              as="textarea"
+              className='resize-none'
+              value={comment}
+              rows={4}
+              onChange={handleCommentChange}
+            />
           </Form.Group>
-          <ButtonGroup size='sm' className="mb-2">
+          <ButtonGroup size='sm' className="mb-2 w-full">
             <Button onClick={appendToComment('All Parts In')} variant="success">All Parts In</Button>
             <Button onClick={appendToComment('Power Tested')} variant="success">Power Tested</Button>
             <Button onClick={appendToComment('Function Tested')} variant="success">Function Tested</Button>
-            <Button onClick={appendToComment('Black Color')} variant="secondary">Black Color</Button>
+            <Button onClick={appendToComment('All Main Parts In')} variant="success">All Main Parts In</Button>
           </ButtonGroup>
-          <ButtonGroup size='sm' className="mb-2">
+          <ButtonGroup size='sm' className="mb-2 w-full">
+            <Button onClick={appendToComment('Missing Screws')} variant="danger">Missing Screws</Button>
+            <Button onClick={appendToComment('No Manual')} variant="danger">No Manual</Button>
+            <Button onClick={appendToComment('May Missing Parts or Accessories')} variant="danger">May Missing P&A</Button>
+            <Button onClick={appendToComment('Unkown Brand')} variant="secondary">Unkown Brand</Button>
+          </ButtonGroup>
+          <ButtonGroup size='sm' className="mb-2 w-full">
             <Button onClick={appendToComment('Missing Accessory')} variant="danger">Missing Accessories</Button>
             <Button onClick={appendToComment('Missing Main Parts')} variant="danger">Missing Main Parts</Button>
-            <Button onClick={appendToComment('Untested')} variant="secondary">Untested</Button>
+            <Button onClick={appendToComment('Untest')} variant="secondary">Untest</Button>
             <Button onClick={appendToComment('Item Different From Link')} variant="secondary">Item Different From Link</Button>
           </ButtonGroup>
-          <ButtonGroup size='sm' className="mb-2">
-            <Button onClick={appendToComment('Missing Screws')} variant="danger">Missing Screws</Button>
-            <Button onClick={appendToComment('Minor Scratch')} variant="danger">Minor Scratch</Button>
+          <ButtonGroup size='sm' className="mb-2 w-full">
+            <Button onClick={appendToComment('Uncountable')} variant="secondary">Uncountable</Button>
             <Button onClick={appendToComment('Same')} variant="secondary">Same</Button>
             <Button onClick={appendToComment('Similar Items')} variant="secondary">Similar Items</Button>
+            <Button onClick={appendToComment('Different Color')} variant="secondary">Different Color</Button>
           </ButtonGroup>
+          <DropdownButton className='w-full mb-2' variant='warning' as={ButtonGroup} title="Color">
+            <Dropdown.Item onClick={appendToComment('Rustic Brown')}>Rustic Brown</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Espresso Color')}>Espresso Color</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Black Color')}>Black Color</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('White Color')}>White Color</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Green Color')}>Green Color</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Blue Color')}>Blue Color</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Red Color')}>Red Color</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Pink Color')}>Pink Color</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Purple Color')}>Purple Color</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Oak Color')}>Oak Color</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Maple Color')}>Maple Color</Dropdown.Item>
+          </DropdownButton>
+          <DropdownButton className='w-full mb-2' variant='danger' as={ButtonGroup} title="Damaged">
+            <Dropdown.Item onClick={appendToComment('Damaged')}>Damaged (Ingeneral)</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Minor Scratch')}>Minor Scratch</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Surface Scratched')}>Surface Scratched</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Surface Dented')}>Surface Dented</Dropdown.Item>
+            <Dropdown.Item onClick={appendToComment('Corner Cracked')}>Corner Cracked</Dropdown.Item>
+          </DropdownButton>
           <hr color='white' />
           <Form.Group id='formgroup'>
             <Form.Label style={{ padding: '10px' }}>
@@ -224,11 +323,30 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
               </Button>
               <Button className='absolute right-[100px]' onClick={() => setLink('No Link')} variant='secondary'>No Link</Button>
             </Form.Label>
-            <Form.Control className="mb-3 resize-none mt-3" type="text" as='textarea' rows={3} value={link} onChange={handleLinkChange} />
+            <Form.Control
+              className="mb-3 resize-none mt-3"
+              type="text"
+              as='textarea'
+              rows={12}
+              value={link}
+              onChange={handleLinkChange}
+            />
             <div className="d-grid gap-2">
               <Button onClick={pasteLink}>Paste</Button>
             </div>
           </Form.Group>
+          <hr color='white' />
+          <Form.Group controlId="formFileMultiple" className="mb-3">
+            <Form.Label>Photo Selection</Form.Label>
+            <Form.Control
+              type="file"
+              multiple
+              onChange={handleFileChange}
+            />
+          </Form.Group>
+          <div className='grid grid-cols-4 gap-2'>
+            {renderSelectedPhotos()}
+          </div>
           <hr color='white' />
           <Form.Group id='Platform'>
             <Form.Label>Platform</Form.Label>
@@ -260,7 +378,13 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
           </Form.Group>
           <Form.Group id='formgroup'>
             <Form.Label>Amount</Form.Label>
-            <NumberInput value={amount} placeholder="Amount..." onChange={handleAmountChange} />
+            {/* <NumberInput value={amount} placeholder="Amount..." onChange={handleAmountChange} /> */}
+            <Form.Control
+              type="number"
+              value={amount}
+              step={1}
+              onChange={handleAmountChange}
+            />
           </Form.Group>
           <hr color='white' />
           <div className="d-grid gap-2">

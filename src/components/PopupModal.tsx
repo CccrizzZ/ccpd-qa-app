@@ -2,10 +2,13 @@ import { Modal, Button } from 'react-bootstrap';
 
 type PopupModalProp = {
   title: string,
-  content: string,
+  content: string | undefined,
+  dom?: JSX.Element | undefined,
   show: boolean,
-  confirmAction: () => void
-  cancelAction: () => void
+  confirmAction: () => void,
+  cancelAction: () => void,
+  showConfirmButton: boolean,
+  showCloseButton: boolean
 }
 
 const PopupModal: React.FC<PopupModalProp> = (props: PopupModalProp) => {
@@ -18,12 +21,13 @@ const PopupModal: React.FC<PopupModalProp> = (props: PopupModalProp) => {
       </Modal.Header>
       <Modal.Body className='bg-dark'>
         <p>
-          {props.content}
+          {props.content ?? undefined}
         </p>
+        {props.dom}
       </Modal.Body>
       <Modal.Footer className='bg-dark'>
-        <Button variant='warning' onClick={props.confirmAction}>Confirm</Button>
-        <Button variant='secondary' onClick={props.cancelAction}>Close</Button>
+        {props.showConfirmButton ? <Button variant='warning' onClick={props.confirmAction}>Confirm</Button> : undefined}
+        {props.showCloseButton ? <Button variant='secondary' onClick={props.cancelAction}>Close</Button> : undefined}
       </Modal.Footer>
     </Modal>
   )
