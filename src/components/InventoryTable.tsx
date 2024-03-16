@@ -18,7 +18,8 @@ import {
 import { Switch } from "@tremor/react";
 import { getVariant, openInBrowser } from '../utils/utils'
 import PopupModal from './PopupModal'
-import axios from 'axios'
+import axios, { AxiosError, AxiosResponse } from 'axios'
+import moment from 'moment';
 
 type InvTableProps = {
   inventoryArr: QARecord[],
@@ -32,13 +33,16 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
 
   const [showEditForm, setShowEditForm] = useState<boolean>(false)
   const [record4Edit, setRecord4Edit] = useState<QARecord>({} as QARecord)
+  const [initRecord4Edit, setInitRecord4Edit] = useState<QARecord>({} as QARecord)
 
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState<boolean>(false)
   const [sku4Delete, setSku4Delete] = useState<number>(0)
 
   const toggleEditMode = () => setEditMode(!editMode)
+  const resetRecord4Edit = () => setRecord4Edit(initRecord4Edit)
   const showEditInventoryForm = (inventory: QARecord) => {
     setRecord4Edit(inventory)
+    setInitRecord4Edit(inventory)
     setShowEditForm(true)
   }
 
@@ -70,15 +74,15 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
     props.setLoading(true)
     await axios({
       method: 'put',
-      url: `${server}/inventoryController/updateInventoryBySku/${sku}`,
+      url: `${server}/inventoryController/updateInventoryBySku/${initRecord4Edit.sku}`,
       responseType: 'text',
       data: JSON.stringify({ newInventoryInfo: newInventoryInfo }),
       withCredentials: true
-    }).then((res) => {
-      alert('Update Success')
+    }).then((res: AxiosResponse) => {
+      if (res.status === 200) alert('Update Success')
       props.setLoading(false)
       props.refresh()
-    }).catch((err) => {
+    }).catch((err: AxiosError) => {
       alert('Update Failed')
       props.setLoading(false)
       throw err
@@ -158,7 +162,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
           </ListGroup>
         </Card.Body>
         <Card.Footer>
-          <small className="text-muted">Created at {inventory.time}</small>
+          <small className="text-muted">Created at {moment(inventory.time).format('LL')}</small>
         </Card.Footer>
       </Card >
     )
@@ -196,11 +200,15 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
   }
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRecord4Edit({ ...record4Edit, amount: Number(event.target.value) })
+    setRecord4Edit({ ...record4Edit, amount: isNaN(Number(event.target.value)) ? 0 : Number(event.target.value) })
   }
 
   const handleMarketplaceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setRecord4Edit({ ...record4Edit, marketplace: event.target.value as Marketplace })
+  }
+
+  const handleSkuChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRecord4Edit({ ...record4Edit, sku: isNaN(Number(event.target.value)) ? 0 : Number(event.target.value) })
   }
 
   // update form wont pickup selected inventory information if placed in child component
@@ -208,30 +216,37 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
     return (
       <Modal className='m-auto' style={{ color: '#adb5bd', width: '90%' }} show={showEditForm} size="lg" centered>
         <Modal.Header className='bg-dark'>
-          <Modal.Title id="contained-modal-title-vcenter">
-            Edit {record4Edit.sku}
+          <Modal.Title className='text-amber-500'>
+            Edit {initRecord4Edit.sku}
           </Modal.Title>
+          <Button className='absolute right-12' variant='primary' onClick={resetRecord4Edit}>Revert Changes</Button>
         </Modal.Header>
         <Modal.Body className='bg-dark' data-bs-theme="dark">
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="SKU">SKU</InputGroup.Text>
+            <Form.Control
+              onChange={handleSkuChange}
+              placeholder={'SKU'}
+              value={record4Edit.sku}
+            />
+          </InputGroup>
           <InputGroup className="mb-3">
             <InputGroup.Text id="Amount">Amount</InputGroup.Text>
             <Form.Control
               onChange={handleAmountChange}
               placeholder={'Amount'}
-              aria-label="Amount"
-              aria-describedby="Amount"
               value={record4Edit.amount}
             />
           </InputGroup>
           <InputGroup className="mb-3">
             <InputGroup.Text id="Condition">Condition</InputGroup.Text>
-            <Form.Select value={record4Edit.itemCondition} aria-label="Item Condition" onChange={handleItemConditionChange}>
+            <Form.Select value={record4Edit.itemCondition} onChange={handleItemConditionChange}>
               {renderConditionOptions()}
             </Form.Select>
           </InputGroup>
           <InputGroup className="mb-3">
             <InputGroup.Text id="Platform">Platform</InputGroup.Text>
-            <Form.Select value={record4Edit.platform} aria-label="Item Condition" onChange={handlePlatformChange}>
+            <Form.Select value={record4Edit.platform} onChange={handlePlatformChange}>
               <option value="Amazon">Amazon</option>
               <option value="eBay">eBay</option>
               <option value="Official Website">Official Website</option>
@@ -240,7 +255,7 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
           </InputGroup>
           <InputGroup className="mb-3">
             <InputGroup.Text id="Marketplace">Marketplace</InputGroup.Text>
-            <Form.Select value={record4Edit.marketplace} aria-label="Marketplace" onChange={handleMarketplaceChange}>
+            <Form.Select value={record4Edit.marketplace} onChange={handleMarketplaceChange}>
               <option value="Hibid">Hibid</option>
               <option value="Retail">Retail</option>
               <option value="eBay">eBay</option>
@@ -252,8 +267,6 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
             <InputGroup.Text id="ShelfLocation">Shelf Location</InputGroup.Text>
             <Form.Control
               placeholder={'ShelfLocation'}
-              aria-label="ShelfLocation"
-              aria-describedby="ShelfLocation"
               value={record4Edit.shelfLocation}
               onChange={handleShelfLocationChange}
             />
@@ -267,8 +280,6 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
               as="textarea"
               value={record4Edit.comment}
               onChange={handleCommentChange}
-              aria-label="Comment"
-              aria-describedby="Comment"
             />
           </InputGroup>
           <InputGroup className="mb-3">
@@ -280,8 +291,6 @@ const InventoryTable: React.FC<InvTableProps> = (props: InvTableProps) => {
               as="textarea"
               value={record4Edit.link}
               onChange={handleLinkChange}
-              aria-label="Link"
-              aria-describedby="Link"
             />
           </InputGroup>
         </Modal.Body>

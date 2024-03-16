@@ -103,7 +103,7 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
 
   // paste txt from clipboard to link
   const pasteLink = async () => {
-    const clip = await Clipboard.read();
+    const clip = await Clipboard.read()
     setLink(clip.value)
   }
 
@@ -175,18 +175,21 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
           withCredentials: true,
           headers: { 'Content-Type': 'multipart/form-data' },
           data: fileFormData
-        }).then((res) => {
+        }).then((res: AxiosResponse) => {
           if (res.status === 200) {
             alert('Upload Success')
             resetForm()
           }
-        }).catch((err) => {
-          alert(`Failed to Upload:  ${err.response.statusText}`)
+        }).catch((err: AxiosError) => {
+          alert(`Failed to Upload Record:  ${err.message}`)
           setIsLoading(false)
         })
+      } else {
+        alert('Upload Success')
+        resetForm()
       }
     }).catch((err: AxiosError) => {
-      alert('Upload Failed: ' + err.message)
+      alert(`Failed to Upload Photo:  ${err.message}`)
       setIsLoading(false)
     })
     setIsLoading(false)
@@ -388,7 +391,14 @@ const Home: React.FC<HomeProp> = (prop: HomeProp) => {
           </Form.Group>
           <hr color='white' />
           <div className="d-grid gap-2">
-            <Button variant="warning" onClick={handleSubmit} size='lg'>Submit</Button>
+            <Button
+              className='h-32'
+              variant="warning"
+              onClick={handleSubmit}
+              size='lg'
+            >
+              Submit <br /> Gooooooooo!
+            </Button>
           </div>
         </Form>
       </IonContent>
